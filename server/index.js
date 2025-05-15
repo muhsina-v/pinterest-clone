@@ -1,5 +1,6 @@
 import express from "express";
-import ConnectDB from "./config/dbConnect";
+import ConnectDB from "./config/dbConnect.js";
+// import userRoutes from "../server/routes/userRoutes.js";
 const app = express();
 
 app.get("/", (req, res) => {
@@ -7,6 +8,8 @@ app.get("/", (req, res) => {
 });
 
 ConnectDB;
+
+// app.use("/");
 
 app.listen(3000, () => {
   console.log("server running on http://localhost:3000");
