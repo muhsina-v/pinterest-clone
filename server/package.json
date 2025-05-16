@@ -19,12 +19,14 @@
   "homepage": "https://github.com/muhsina-v/pinterest-clone#readme",
   "description": "",
   "dependencies": {
+    "@tailwindcss/vite": "^4.1.7",
     "bcrypt": "^6.0.0",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.14.2",
-    "pinterest-clone": "file:"
+    "pinterest-clone": "file:",
+    "tailwindcss": "^4.1.7"
   },
   "devDependencies": {
     "nodemon": "^3.1.10"
