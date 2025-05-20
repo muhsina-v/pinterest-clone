@@ -3,7 +3,7 @@ import React from "react";
 const Navbar: React.FC = () => {
   return (
     <nav className="flex items-center justify-between px-6 py-5 bg-white  fixed top-0 left-0 right-0 z-10">
-      {/* Left: Logo + Name */}
+
       <div className="flex items-center gap-2">
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png"
@@ -13,7 +13,6 @@ const Navbar: React.FC = () => {
         <span className="text-xl font-bold text-red-600">Pinterest</span>
       </div>
 
-      {/* Center: Search Bar */}
       <div className="flex-1 flex justify-center">
         <div className="w-[500px]">
           <input
@@ -24,7 +23,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Right: Profile image */}
+   
       <div className="flex items-center gap-4">
         <img
           src="s"

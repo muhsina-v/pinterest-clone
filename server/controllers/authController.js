@@ -2,19 +2,21 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/userSchema.js";
 import CustomError from "../utils/customError.js";
-import { joiUserSchema } from "../models/joiValSchema.js";
+import { userValidationSchema } from "../models/userJoiSchema.js";
+import dotenv from 'dotenv'
+dotenv.config();
 
-// Helper: Create JWT Token
+
 const createToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: "7d",
   });
 };
 
-// Register Controller
 export const registerUser = async (req, res, next) => {
   try {
-    const { value, error } = joiUserSchema.validate(req.body);
+    console.log(req.body)
+    const { value, error } = userValidationSchema.validate(req.body);
     if (error) return next(new CustomError(error.details[0].message, 400));
 
     const { username, email, password } = value;
@@ -40,7 +42,7 @@ export const registerUser = async (req, res, next) => {
   }
 };
 
-// Login Controller
+
 export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -69,7 +71,16 @@ export const loginUser = async (req, res, next) => {
   }
 };
 
-// Logout (optional, since it's JWT-based)
 export const logoutUser = (req, res) => {
   res.status(200).json({ success: true, message: "Logged out successfully" });
 };
+
+// export const getallemail = async(req,res)={
+//   try(
+//   const allusers = await users.find({},email)
+//   const emails = allusers.map(users=>users.email)
+//   res.status(200).json({emails})
+//   )
+//   catch(error){res.status(400).json(error)}
+// }  
+

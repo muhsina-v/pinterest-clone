@@ -2,6 +2,8 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const RegisterPage: React.FC = () => {
+
+  
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center">
       <div className="bg-white bg-opacity-90 rounded-xl shadow-lg p-8 max-w-sm w-full">

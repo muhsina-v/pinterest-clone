@@ -4,6 +4,7 @@ import HomePage from './component/Home';
 import Navbar from './component/Navbar';
 import Sidebar from './component/Sidebar';
 import RegisterPage from './component/RegisterPage';
+import ExplorePage from './component/Explore';
 
 const App: React.FC = () => {
   return (
@@ -13,6 +14,8 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/explore" element={<ExplorePage />} />
+      
       </Routes>
     </div>
   );
