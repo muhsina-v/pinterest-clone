@@ -5,6 +5,7 @@ import imagesLoaded from 'imagesloaded';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 
+// Placeholder data
 const placeholderPins = [
   { id: '1', imageUrl: 'https://picsum.photos/400/600', title: '' },
   { id: '2', imageUrl: 'https://picsum.photos/400/400', title: '' },
