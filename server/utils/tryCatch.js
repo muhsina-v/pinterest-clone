@@ -1,4 +1,3 @@
-
 const tryCatch=(func)=>async(req,res,next)=>{
     try {
         await func(req,res,next)
