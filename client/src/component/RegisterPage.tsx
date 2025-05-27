@@ -1,9 +1,48 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axiosInstance from '../utils/axios';
+
+interface FormData {
+  username: string;
+  email: string;
+  password: string;
+}
 
 const RegisterPage: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
+    username: '',
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
 
-  
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+      
+
+    try {
+    
+      const response = await axiosInstance.post('/api/user/register', formData);
+      // console.log("Server replied:", response.data);
+      console.log(response)
+      alert(response.data.message);
+     
+      navigate('/Explore');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center">
       <div className="bg-white bg-opacity-90 rounded-xl shadow-lg p-8 max-w-sm w-full">
@@ -16,27 +55,43 @@ const RegisterPage: React.FC = () => {
           <span className="text-xl font-bold text-red-600">Pinterest</span>
         </div>
         <h2 className="text-2xl font-bold mb-4 text-black">Sign Up</h2>
-        <form className="flex flex-col gap-4">
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="text"
+            name="username"
             placeholder="Username"
+            value={formData.username}
+            onChange={handleChange}
             className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
           />
           <input
             type="email"
+            name="email"
             placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
             className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
           />
           <input
             type="password"
+            name="password"
             placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
             className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
           />
           <button
             type="submit"
-            className="bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
+            disabled={loading}
+            className={`bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition ${
+              loading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            Sign Up
+            {loading ? 'Signing Up...' : 'Sign Up'}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">

@@ -1,10 +1,42 @@
-import React from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Navbar: React.FC = () => {
-  return (
-    <nav className="flex items-center justify-between px-6 py-5 bg-white  fixed top-0 left-0 right-0 z-10">
+  const navigate = useNavigate();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-      <div className="flex items-center gap-2">
+  const handleLogoClick = () => {
+    navigate("/");
+  };
+
+  const handleProfileClick = () => {
+    setShowDropdown((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user"); // or your token
+    navigate("/login");
+  };
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <nav className="flex items-center justify-between px-6 py-5 bg-white fixed top-0 left-0 right-0 z-40 shadow-sm">
+      {/* Logo */}
+      <div
+        onClick={handleLogoClick}
+        className="flex items-center gap-2 cursor-pointer"
+      >
         <img
           src="https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png"
           alt="Pinterest Logo"
@@ -13,6 +45,7 @@ const Navbar: React.FC = () => {
         <span className="text-xl font-bold text-red-600">Pinterest</span>
       </div>
 
+      {/* Search */}
       <div className="flex-1 flex justify-center">
         <div className="w-[500px]">
           <input
@@ -23,13 +56,37 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-   
-      <div className="flex items-center gap-4">
+      {/* Profile + Dropdown */}
+      <div className="relative" ref={dropdownRef}>
         <img
-          src="s"
+          onClick={handleProfileClick}
+          src="https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg"
           alt="Profile"
-          className="w-8 h-8 rounded-full"
+          className="w-8 h-8 rounded-full cursor-pointer"
         />
+
+        {showDropdown && (
+          <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-md z-50">
+            <button
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+              onClick={() => navigate("/profile")}
+            >
+              Profile
+            </button>
+            <button
+              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+              onClick={() => navigate("/settings")}
+            >
+              Settings
+            </button>
+            <button
+              className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
+        )}
       </div>
     </nav>
   );

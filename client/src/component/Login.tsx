@@ -1,46 +1,110 @@
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axiosInstance from '../utils/axios';
 
-const Login: React.FC = () => {
+interface FormData {
+  email: string;
+  password: string;
+}
+
+interface User {
+  id: string;
+  username: string;
+  email: string;
+}
+
+interface LoginResponse {
+  success: boolean;
+  message: string;
+  token: string;
+  currentUser: User;
+}
+
+const LoginPage: React.FC = () => {
+  const [formData, setFormData] = useState<FormData>({
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const navigate = useNavigate();
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await axiosInstance.post<LoginResponse>('/api/user/login', formData);
+      const { token, currentUser } = response.data;
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(currentUser));
+
+      alert(response.data.message);
+      navigate('/Explore');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div className="bg-white bg-opacity-90 rounded-xl shadow-lg p-8 max-w-sm w-full">
-      <div className="flex items-center gap-2 mb-6">
-        <img
-          src="https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png"
-          alt="Pinterest Logo"
-          className="w-6 h-6"
-        />
-        <span className="text-xl font-bold text-red-600">Pinterest</span>
+    <div className="relative min-h-screen w-full flex items-center justify-center">
+      <div className="bg-white bg-opacity-90 rounded-xl shadow-lg p-8 max-w-sm w-full">
+        <div className="flex items-center gap-2 mb-6">
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png"
+            alt="Pinterest Logo"
+            className="w-6 h-6"
+          />
+          <span className="text-xl font-bold text-red-600">Pinterest</span>
+        </div>
+        <h2 className="text-2xl font-bold mb-4 text-black">Log In</h2>
+        {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+          <input
+            type="email"
+            name="email"
+            placeholder="Email"
+            value={formData.email}
+            onChange={handleChange}
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+          />
+          <input
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+            className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+            required
+          />
+          <button
+            type="submit"
+            disabled={loading}
+            className={`bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition ${
+              loading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+          >
+            {loading ? 'Logging In...' : 'Log In'}
+          </button>
+        </form>
+        <p className="mt-4 text-center text-sm text-gray-600">
+          Don't have an account?{' '}
+          <Link to="/register" className="text-blue-500 hover:underline">
+            Sign up
+          </Link>
+        </p>
       </div>
-
-      <h2 className="text-2xl font-bold mb-4 text-black">Log in</h2>
-
-      <form className="flex flex-col gap-4">
-        <input
-          type="email"
-          placeholder="Email"
-          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-        />
-        <button
-          type="submit"
-          className="bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
-        >
-          Log In
-        </button>
-      </form>
-
-      <p className="mt-4 text-center text-sm text-gray-600">
-        Don't have an account?{' '}
-        <Link to="/register" className="text-blue-500 hover:underline">
-          Sign up
-        </Link>
-      </p>
     </div>
   );
 };
 
-export default Login;
+export default LoginPage;
