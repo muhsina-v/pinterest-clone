@@ -5,6 +5,7 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [user, setUser] = useState<any>(null);
 
   const handleLogoClick = () => {
     navigate("/");
@@ -15,14 +16,35 @@ const Navbar: React.FC = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user"); // or your token
-    navigate("/login");
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
+      localStorage.removeItem("user");
+      setUser(null);
+      window.dispatchEvent(new Event("userUpdated")); // Notify other components
+      navigate("/login");
+    }
   };
 
-  // Close dropdown on outside click
+  // ✅ Load user when component mounts AND when "userUpdated" event is dispatched
+  useEffect(() => {
+    const loadUser = () => {
+      const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+      setUser(storedUser);
+    };
+
+    loadUser();
+    window.addEventListener("userUpdated", loadUser);
+
+    return () => window.removeEventListener("userUpdated", loadUser);
+  }, []);
+
+  // ✅ Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setShowDropdown(false);
       }
     };
@@ -56,38 +78,39 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Profile + Dropdown */}
-      <div className="relative" ref={dropdownRef}>
-        <img
-          onClick={handleProfileClick}
-          src="https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg"
-          alt="Profile"
-          className="w-8 h-8 rounded-full cursor-pointer"
-        />
+      {/* Profile + Dropdown - Only if logged in */}
+      {user && (
+        <div className="relative" ref={dropdownRef}>
+          <img
+            onClick={handleProfileClick}
+            src={
+              user?.profileImage
+                ? user.profileImage
+                : "https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg"
+            }
+            alt="Profile"
+            className="w-8 h-8 rounded-full cursor-pointer object-cover"
+          />
 
-        {showDropdown && (
-          <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-md z-50">
-            <button
-              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-              onClick={() => navigate("/profile")}
-            >
-              Profile
-            </button>
-            <button
-              className="block w-full text-left px-4 py-2 hover:bg-gray-100"
-              onClick={() => navigate("/settings")}
-            >
-              Settings
-            </button>
-            <button
-              className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
-          </div>
-        )}
-      </div>
+          {showDropdown && (
+            <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-md z-50">
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                onClick={() => navigate("/profile")}
+              >
+                Profile
+              </button>
+
+              <button
+                className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </nav>
   );
 };

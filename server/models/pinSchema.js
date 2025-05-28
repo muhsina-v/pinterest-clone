@@ -6,20 +6,18 @@ const pinSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    description: {
-      type: String,
-    },
+    description: String,
     image: {
-      type: String, // This will be a URL or filename from file upload
+      type: String, // image URL
       required: true,
     },
-    user: {
+    createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // reference to the user who created the pin
+      ref: "User",
       required: true,
     },
   },
-  { timestamps: true } // adds createdAt and updatedAt
+  { timestamps: true }
 );
 
 export default mongoose.model("Pin", pinSchema);

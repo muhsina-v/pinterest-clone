@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const EditProfilePage: React.FC = () => {
+  const navigate = useNavigate();
+
+  // Get user data from localStorage
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
 
   const [formData, setFormData] = useState({
@@ -22,7 +26,10 @@ const EditProfilePage: React.FC = () => {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData((prev) => ({ ...prev, profileImage: reader.result as string }));
+        setFormData((prev) => ({
+          ...prev,
+          profileImage: reader.result as string,
+        }));
       };
       reader.readAsDataURL(file);
     }
@@ -31,10 +38,13 @@ const EditProfilePage: React.FC = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Simulate update (in real app: send to backend)
     const updatedUser = { ...storedUser, ...formData };
+
+    // Save updated user to localStorage
     localStorage.setItem("user", JSON.stringify(updatedUser));
-    alert("Profile updated!");
+
+    // Navigate back to profile page
+    navigate("/profile");
   };
 
   return (
@@ -45,7 +55,7 @@ const EditProfilePage: React.FC = () => {
       >
         <h2 className="text-xl font-bold mb-6 text-center">Edit Profile</h2>
 
-        {/* Profile Image Upload */}
+        {/* Profile Image */}
         <div className="flex flex-col items-center mb-6">
           <img
             src={formData.profileImage}
@@ -55,6 +65,7 @@ const EditProfilePage: React.FC = () => {
           <input type="file" accept="image/*" onChange={handleImageChange} />
         </div>
 
+        {/* Username */}
         <label className="block mb-4">
           <span className="text-gray-700">Username</span>
           <input
@@ -67,6 +78,7 @@ const EditProfilePage: React.FC = () => {
           />
         </label>
 
+        {/* Bio */}
         <label className="block mb-4">
           <span className="text-gray-700">Bio</span>
           <textarea
@@ -78,6 +90,7 @@ const EditProfilePage: React.FC = () => {
           />
         </label>
 
+        {/* Website */}
         <label className="block mb-6">
           <span className="text-gray-700">Website</span>
           <input
@@ -89,6 +102,7 @@ const EditProfilePage: React.FC = () => {
           />
         </label>
 
+        {/* Save Button */}
         <button
           type="submit"
           className="w-full bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition"
