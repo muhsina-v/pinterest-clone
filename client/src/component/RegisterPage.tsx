@@ -18,11 +18,11 @@ const RegisterPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -31,7 +31,6 @@ const RegisterPage: React.FC = () => {
     try {
     
       const response = await axiosInstance.post('/api/user/register', formData);
-      // console.log("Server replied:", response.data);
       console.log(response)
       alert(response.data.message);
      

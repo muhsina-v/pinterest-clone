@@ -5,7 +5,6 @@ const ProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>({});
 
-  // Load user from localStorage on mount
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
     setUser(storedUser);
@@ -24,12 +23,10 @@ const ProfilePage: React.FC = () => {
         <div>
           <h2 className="text-xl font-semibold">{user?.username || "Guest"}</h2>
 
-          {/* Bio */}
           {user?.bio && (
             <p className="text-gray-700 text-sm mt-1">{user.bio}</p>
           )}
 
-          {/* Website */}
           {user?.website && (
             <a
               href={user.website}

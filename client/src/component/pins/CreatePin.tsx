@@ -1,21 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import axiosInstence from "../../utils/axios";
 
 const CreatePin: React.FC = () => {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [link, setLink] = useState('');
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [link, setLink] = useState("");
   const [image, setImage] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [message, setMessage] = useState('');
+  const [preview, setPreview] = useState<string>("");
+  const [message, setMessage] = useState("");
 
-  // Create and revoke object URL for image preview
   useEffect(() => {
     if (!image) {
-      setPreview(null);
+      setPreview("");
       return;
     }
     const objectUrl = URL.createObjectURL(image);
+    console.log(objectUrl)
     setPreview(objectUrl);
 
     return () => URL.revokeObjectURL(objectUrl);
@@ -23,35 +24,37 @@ const CreatePin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     if (!image) {
-      setMessage('Please upload an image');
+      setMessage("Please upload an image");
       return;
     }
 
     const formData = new FormData();
-    formData.append('title', title);
-    formData.append('description', description);
-    formData.append('link', link);
-    formData.append('image', image);
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("link", link);
+    formData.append("image", image);
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
 
-      await axios.post('http://localhost:3000/api/user/pin', formData, {
+      await axiosInstence.post("http://localhost:3000/api/user/pin", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`,
+    
         },
       });
 
-      setMessage('Pin uploaded successfully!');
-      setTitle('');
-      setDescription('');
-      setLink('');
+      setMessage("Pin uploaded successfully!");
+      setTitle("");
+      setDescription("");
+      setLink("");
       setImage(null);
+      alert("success")
+      
     } catch (error: any) {
-      setMessage(error.response?.data?.message || 'Something went wrong');
+      setMessage(error.response?.data?.message || "Something went wrong");
+      console.log(error);
     }
   };
 
@@ -61,7 +64,6 @@ const CreatePin: React.FC = () => {
         onSubmit={handleSubmit}
         className="flex w-full max-w-5xl bg-white border rounded-lg shadow-md p-6 gap-8"
       >
-        {/* Left side: Image upload */}
         <div className="flex flex-col items-center justify-center border-2 border-dashed border-gray-400 w-[320px] h-[480px] rounded-lg overflow-hidden">
           {preview ? (
             <img
@@ -88,7 +90,6 @@ const CreatePin: React.FC = () => {
           )}
         </div>
 
-        {/* Right side: Details */}
         <div className="flex-1 space-y-4">
           <input
             type="text"
@@ -119,9 +120,7 @@ const CreatePin: React.FC = () => {
           >
             Upload Pin
           </button>
-          {message && (
-            <p className="text-sm text-gray-700 mt-2">{message}</p>
-          )}
+          {message && <p className="text-sm text-gray-700 mt-2">{message}</p>}
         </div>
       </form>
     </div>

@@ -1,23 +1,11 @@
 import mongoose from "mongoose";
 
-const pinSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: true,
-    },
-    description: String,
-    image: {
-      type: String, // image URL
-      required: true,
-    },
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-  },
-  { timestamps: true }
-);
+const pinSchema = new mongoose.Schema({
+  title: String,
+  description: String,
+  userId: String,
+  image: String,
+}, { timestamps: true });
 
-export default mongoose.model("Pin", pinSchema);
+const Pin = mongoose.model("Pin", pinSchema); 
+export default Pin;

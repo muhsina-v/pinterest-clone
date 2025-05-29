@@ -3,14 +3,18 @@ import userRoutes from "../server/routes/userRoutes.js";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
+import connectCloundinary from "./config/cloudinary.js";
 const app = express();
 
 dotenv.config();
+
+connectCloundinary();
 
 const corsOption = {
   origin: process.env.FRONTEND_URL,
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE"],
   credentials: true,
+  allowedHeaders:['Content-Type','Authorization']
 };
 app.use(cors(corsOption));
 

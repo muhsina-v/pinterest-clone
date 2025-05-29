@@ -1,43 +1,95 @@
 import Pin from "../../models/pinSchema.js";
-import { pinValidationSchema } from "../../models/pinJoiSchema.js";
-import CustomError from "../../utils/customError.js";
 
-// ✅ Create Pin
-export const createPin = async (req, res, next) => {
+
+
+// Create a new Pin
+export const createPin = async (req, res) => {
   try {
-    const { value, error } = pinValidationSchema.validate(req.body);
-    if (error) return next(new CustomError(error.details[0].message, 400));
+    const { title, description } = req.body;
+    const userId = req.user; // Use req.user directly (string ID from verifyToken)
+    console.log(req.file)
+    if (!req.file || !req.file.path) {
+      return res.status(400).json({ message: "Image is required" });
+    }
 
-    const { title, imageUrl, description } = value;
+    console.log("Uploaded file:", req.file); // Log the entire req.file for debugging
 
     const newPin = new Pin({
       title,
-      imageUrl,
       description,
-      user: req.user.id, // from verifyToken
+      userId, // Assign userId directly
+      image: req.file.path, // Cloudinary image URL
     });
 
-    await newPin.save();
-
-    res.status(201).json({
-      success: true,
-      message: "Pin created successfully",
-      pin: newPin,
-    });
-  } catch (err) {
-    next(err);
+    const savedPin = await newPin.save();
+    res.status(201).json(savedPin);
+  } catch (error) {
+    console.error("Create pin error:", error); // Log detailed error
+    res.status(500).json({ message: "Failed to create pin", error: error.message });
+  }
+};
+// Get all pins
+export const getAllPins = async (req, res) => {
+  try {
+    const pins = await Pin.find().sort({ createdAt: -1 });
+    res.status(200).json(pins);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch pins", error });
   }
 };
 
-// ✅ Get All Pins
-export const getAllPins = async (req, res, next) => {
+// Get pin by ID
+export const getPinById = async (req, res) => {
   try {
-    const pins = await Pin.find().populate("user", "username");
-    res.status(200).json({
-      success: true,
-      pins,
+    const pin = await Pin.findById(req.params.id);
+    if (!pin) return res.status(404).json({ message: "Pin not found" });
+    res.status(200).json(pin);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching pin", error });
+  }
+};
+
+// Get pins by user
+export const getPinsByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const pins = await Pin.find({ userId }).sort({ createdAt: -1 });
+    res.status(200).json(pins);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch user pins", error });
+  }
+};
+
+// Delete a pin
+export const deletePin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const pin = await Pin.findByIdAndDelete(id);
+    if (!pin) return res.status(404).json({ message: "Pin not found" });
+    res.status(200).json({ message: "Pin deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to delete pin", error });
+  }
+};
+
+// Update a pin
+export const updatePin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { title, description } = req.body;
+
+    const updatedData = { title, description };
+    if (req.file && req.file.path) {
+      updatedData.image = req.file.path;
+    }
+
+    const updatedPin = await Pin.findByIdAndUpdate(id, updatedData, {
+      new: true,
     });
-  } catch (err) {
-    next(err);
+
+    if (!updatedPin) return res.status(404).json({ message: "Pin not found" });
+    res.status(200).json(updatedPin);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to update pin", error });
   }
 };

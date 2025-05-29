@@ -9,7 +9,7 @@ interface Pin {
 }
 
 const AllPins = () => {
-  const [pins, setPins] = useState<Pin[]>([]); // 👈 define type
+  const [pins, setPins] = useState<Pin[]>([]); 
 
   useEffect(() => {
     const fetchPins = async () => {

@@ -20,12 +20,11 @@ const Navbar: React.FC = () => {
     if (confirmLogout) {
       localStorage.removeItem("user");
       setUser(null);
-      window.dispatchEvent(new Event("userUpdated")); // Notify other components
-      navigate("/login");
+      window.dispatchEvent(new Event("userUpdated")); 
+      navigate("/");
     }
   };
 
-  // ✅ Load user when component mounts AND when "userUpdated" event is dispatched
   useEffect(() => {
     const loadUser = () => {
       const storedUser = JSON.parse(localStorage.getItem("user") || "null");
@@ -38,7 +37,6 @@ const Navbar: React.FC = () => {
     return () => window.removeEventListener("userUpdated", loadUser);
   }, []);
 
-  // ✅ Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -54,7 +52,7 @@ const Navbar: React.FC = () => {
 
   return (
     <nav className="flex items-center justify-between px-6 py-5 bg-white fixed top-0 left-0 right-0 z-40 shadow-sm">
-      {/* Logo */}
+    
       <div
         onClick={handleLogoClick}
         className="flex items-center gap-2 cursor-pointer"
@@ -67,7 +65,6 @@ const Navbar: React.FC = () => {
         <span className="text-xl font-bold text-red-600">Pinterest</span>
       </div>
 
-      {/* Search */}
       <div className="flex-1 flex justify-center">
         <div className="w-[500px]">
           <input
@@ -78,7 +75,6 @@ const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Profile + Dropdown - Only if logged in */}
       {user && (
         <div className="relative" ref={dropdownRef}>
           <img

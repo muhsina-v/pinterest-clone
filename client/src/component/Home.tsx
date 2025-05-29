@@ -6,7 +6,6 @@ import LoginForm from '../component/Login';
 const HomePage: React.FC = () => {
   return (
     <div className="relative w-full">
-      {/* First*/}
       <div className="relative min-h-screen w-full">
         <div className="fixed top-0 left-0 z-20">
           <Sidebar />
@@ -40,7 +39,6 @@ const HomePage: React.FC = () => {
         </main>
       </div>
 
-      {/* Second*/}
       <div className="relative min-h-screen w-full bg-red-100">
         <div className="absolute right-0 top-0 h-full w-1/2 flex items-center justify-center z-0">
           <img
