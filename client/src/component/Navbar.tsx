@@ -20,7 +20,7 @@ const Navbar: React.FC = () => {
     if (confirmLogout) {
       localStorage.removeItem("user");
       setUser(null);
-      window.dispatchEvent(new Event("userUpdated")); 
+      window.dispatchEvent(new Event("userUpdated"));
       navigate("/");
     }
   };
@@ -51,8 +51,8 @@ const Navbar: React.FC = () => {
   }, []);
 
   return (
-    <nav className="flex items-center justify-between px-6 py-5 bg-white fixed top-0 left-0 right-0 z-40 shadow-sm">
-    
+    <nav className="flex items-center justify-between px-3 sm:px-6 py-3 sm:py-5 bg-white fixed top-0 left-0 right-0 z-40 shadow-sm">
+      {/* Logo */}
       <div
         onClick={handleLogoClick}
         className="flex items-center gap-2 cursor-pointer"
@@ -62,19 +62,23 @@ const Navbar: React.FC = () => {
           alt="Pinterest Logo"
           className="w-6 h-6"
         />
-        <span className="text-xl font-bold text-red-600">Pinterest</span>
+        <span className="text-xl font-bold text-red-600 hidden xs:inline">
+          Pinterest
+        </span>
       </div>
 
-      <div className="flex-1 flex justify-center">
-        <div className="w-[500px]">
+      {/* Search */}
+      <div className="flex-1 hidden sm:flex justify-center">
+        <div className="w-full max-w-[500px] px-4 sm:px-6">
           <input
             type="text"
             placeholder="Search"
-            className="w-full px-5 py-2 rounded-full border-none bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 shadow-sm placeholder-gray-500"
+            className="w-full px-4 sm:px-5 py-2 rounded-full border-none bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 shadow-sm placeholder-gray-500"
           />
         </div>
       </div>
 
+      {/* Profile dropdown */}
       {user && (
         <div className="relative" ref={dropdownRef}>
           <img

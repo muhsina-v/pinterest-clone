@@ -8,7 +8,7 @@ import ExplorePage from './component/Explore';
 import ProfilePage from './component/profile/Profile';
 import EditProfilePage from './component/profile/EditProfile';
 import CreatePin from './component/pins/CreatePin';
-import AllPins from './component/pins/AllPins';
+// import AllPins from './component/pins/AllPins';
 
 
 
@@ -24,9 +24,7 @@ const App: React.FC = () => {
 
         <Route path="/profile" element={<ProfilePage/>} />
        <Route path="/create-pin" element={<CreatePin />} />
-         <Route path='/allpin' element={<AllPins />}/>
-
-
+         {/* <Route path='/allpin' element={<AllPins />}/> */}
 
 <Route path="/edit-profile" element={<EditProfilePage />} />
 

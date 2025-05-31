@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import axiosInstence from "../../utils/axios";
 
 const CreatePin: React.FC = () => {
@@ -38,12 +37,13 @@ const CreatePin: React.FC = () => {
     try {
       const token = localStorage.getItem("token");
 
-      await axiosInstence.post("http://localhost:3000/api/user/pin", formData, {
+     let respose = await axiosInstence.post("http://localhost:3000/api/user/pin", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
     
         },
       });
+      console.log(respose)
 
       setMessage("Pin uploaded successfully!");
       setTitle("");
@@ -51,7 +51,7 @@ const CreatePin: React.FC = () => {
       setLink("");
       setImage(null);
       alert("success")
-      
+
     } catch (error: any) {
       setMessage(error.response?.data?.message || "Something went wrong");
       console.log(error);

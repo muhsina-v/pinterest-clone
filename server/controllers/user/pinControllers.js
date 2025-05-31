@@ -1,34 +1,34 @@
 import Pin from "../../models/pinSchema.js";
 
-
-
-// Create a new Pin
 export const createPin = async (req, res) => {
   try {
     const { title, description } = req.body;
-    const userId = req.user; // Use req.user directly (string ID from verifyToken)
-    console.log(req.file)
+    const userId = req.user;
+    console.log("errrrr", req.file);
+
     if (!req.file || !req.file.path) {
       return res.status(400).json({ message: "Image is required" });
     }
 
-    console.log("Uploaded file:", req.file); // Log the entire req.file for debugging
+    console.log("Uploaded file:", req.file);
 
     const newPin = new Pin({
       title,
       description,
-      userId, // Assign userId directly
-      image: req.file.path, // Cloudinary image URL
+      userId,
+      image: req.file.path,
     });
 
     const savedPin = await newPin.save();
     res.status(201).json(savedPin);
   } catch (error) {
-    console.error("Create pin error:", error); // Log detailed error
-    res.status(500).json({ message: "Failed to create pin", error: error.message });
+    console.error("Create pin error:", error);
+    res
+      .status(500)
+      .json({ message: "Failed to create pin", error: error.message });
   }
 };
-// Get all pins
+
 export const getAllPins = async (req, res) => {
   try {
     const pins = await Pin.find().sort({ createdAt: -1 });
@@ -38,7 +38,6 @@ export const getAllPins = async (req, res) => {
   }
 };
 
-// Get pin by ID
 export const getPinById = async (req, res) => {
   try {
     const pin = await Pin.findById(req.params.id);
@@ -49,7 +48,6 @@ export const getPinById = async (req, res) => {
   }
 };
 
-// Get pins by user
 export const getPinsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -60,7 +58,6 @@ export const getPinsByUser = async (req, res) => {
   }
 };
 
-// Delete a pin
 export const deletePin = async (req, res) => {
   try {
     const { id } = req.params;
@@ -72,7 +69,6 @@ export const deletePin = async (req, res) => {
   }
 };
 
-// Update a pin
 export const updatePin = async (req, res) => {
   try {
     const { id } = req.params;

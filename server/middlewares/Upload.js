@@ -7,7 +7,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "Pinterest",
-    allowed_formats: ["jpg", "png", "jpeg", "mp4", "mov", "avi", "mkv",],
+    allowed_formats: ["jpg", "png", "jpeg", "mp4", "mov", "avif", "mkv",],
   },
 });
 
