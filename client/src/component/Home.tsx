@@ -1,128 +1,118 @@
-import { Link } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import Navbar from './Navbar';
-import backgroundImage from '../assets/images/background.jpeg';
-import LoginForm from '../component/Login';
-const HomePage: React.FC = () => {
+import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+
+const Navbar: React.FC = () => {
+  const navigate = useNavigate();
+  const [showDropdown, setShowDropdown] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const [user, setUser] = useState<any>(null);
+
+  const handleLogoClick = () => {
+    navigate("/");
+  };
+
+  const handleProfileClick = () => {
+    setShowDropdown((prev) => !prev);
+  };
+
+  const handleLogout = () => {
+    const confirmLogout = window.confirm("Are you sure you want to logout?");
+    if (confirmLogout) {
+      localStorage.removeItem("user");
+      setUser(null);
+      window.dispatchEvent(new Event("userUpdated"));
+      navigate("/");
+    }
+  };
+
+  useEffect(() => {
+    const loadUser = () => {
+      const storedUser = JSON.parse(localStorage.getItem("user") || "null");
+      setUser(storedUser);
+    };
+
+    loadUser();
+    window.addEventListener("userUpdated", loadUser);
+
+    return () => window.removeEventListener("userUpdated", loadUser);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
-    <div className="relative w-full">
-      <div className="relative min-h-screen w-full">
-        <div className="fixed top-0 left-0 z-20">
-          <Sidebar />
-        </div>
-
-        <div className="fixed top-0 left-0 w-full z-30">
-          <Navbar />
-        </div>
-
-        <div className="absolute inset-0 -z-10">
-          <img
-            src={backgroundImage}
-            alt="Pinterest Background"
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              filter: 'blur(4px)',
-            }}
-          />
-        </div>
-
-        <main className="pl-48 pt-20 relative z-10 flex items-center justify-between h-screen px-20">
-          <div className="text-red-900 max-w-md">
-            <h1 className="text-7xl font-bold leading-snug">
-              Login to get your ideas
-            </h1>
-          </div>
-
-          <LoginForm />
-        </main>
+    <nav className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-5 bg-white fixed top-0 left-0 right-0 z-40 shadow-sm">
+      {/* Logo */}
+      <div
+        onClick={handleLogoClick}
+        className="flex items-center gap-2 cursor-pointer"
+      >
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/0/08/Pinterest-logo.png"
+          alt="Pinterest Logo"
+          className="w-6 h-6"
+        />
+        <span className="text-xl font-bold text-red-600 hidden sm:inline">
+          Pinterest
+        </span>
       </div>
 
-      <div className="relative min-h-screen w-full bg-red-100">
-        <div className="absolute right-0 top-0 h-full w-1/2 flex items-center justify-center z-0">
-          <img
-            src="https://pinterest-clone-sahad.vercel.app/_next/image?url=%2Fblue-img-1.png&w=1920&q=75"
-            alt="Second Pinterest Background"
-            className="max-w-md w-full h-auto rounded-lg shadow-lg"
+      {/* Search */}
+      <div className="flex-1 hidden sm:flex justify-center">
+        <div className="w-full max-w-[500px] px-4">
+          <input
+            type="text"
+            placeholder="Search"
+            className="w-full px-4 py-2 rounded-full border-none bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-red-400 shadow-sm placeholder-gray-500"
           />
         </div>
-
-        <main className="pl-48 pt-20 relative z-10 flex items-center h-screen px-20">
-          <div className="w-1/2 flex flex-col items-center justify-center text-center">
-            <h1 className="text-6xl font-bold leading-snug text-red-900">
-              See it, make it,<br />try it, do it
-            </h1>
-            <p className="mt-4 text-lg text-red-900 max-w-md">
-              The best part of Pinterest is discovering new things and ideas from people around the world.
-            </p>
-            <Link
-              to="/explore"
-              className="mt-6 bg-red-500 text-white py-2 px-6 rounded-md hover:bg-red-600 transition"
-            >
-              Explore
-            </Link>
-          </div>
-        </main>
       </div>
 
-      {/*3rd*/}
-      <div className="relative min-h-screen w-full bg-[#DAFFF6]">
-        <div className="absolute left-0 top-0 h-full w-1/2 flex items-center justify-center z-0">
+      {/* Profile dropdown */}
+      {user && (
+        <div className="relative" ref={dropdownRef}>
           <img
-            src="https://pinterest-clone-sahad.vercel.app/_next/image?url=%2FBlueHome.png&w=1920&q=75"
-            alt="Third Pinterest Background"
-            className="max-w-md w-full h-auto rounded-lg"
+            onClick={handleProfileClick}
+            src={
+              user?.profileImage
+                ? user.profileImage
+                : "https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg"
+            }
+            alt="Profile"
+            className="w-8 h-8 rounded-full cursor-pointer object-cover"
           />
+
+          {showDropdown && (
+            <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-md z-50">
+              <button
+                className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+                onClick={() => navigate("/profile")}
+              >
+                Profile
+              </button>
+
+              <button
+                className="block w-full text-left px-4 py-2 text-red-500 hover:bg-gray-100"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          )}
         </div>
-
-        <main className="pl-48 pt-20 relative z-10 flex items-center h-screen px-20">
-          <div className="w-1/2 ml-auto flex flex-col items-center justify-center text-center">
-            <h1 className="text-6xl font-bold leading-snug text-red-900">
-              Create, share,<br />inspire
-            </h1>
-            <p className="mt-4 text-lg text-red-900 max-w-md">
-              Join a global community to share your passions and inspire others with your creations.
-            </p>
-            <Link
-              to="/explore"
-              className="mt-6 bg-red-500 text-white py-2 px-6 rounded-md hover:bg-red-600 transition"
-            >
-              Explore
-            </Link>
-          </div>
-        </main>
-      </div>
-
-      {/*4th*/}
-      <div className="relative min-h-screen w-full bg-[#FFFD92]">
-        <div className="absolute right-0 top-0 h-full w-1/2 flex items-center justify-center z-0">
-          <img
-            src="https://pinterest-clone-sahad.vercel.app/_next/image?url=%2FYellowHome.png&w=1920&q=75"
-            alt="Fourth Pinterest Background"
-            className="max-w-md w-full h-auto rounded-lg"
-          />
-        </div>
-
-        <main className="pl-48 pt-20 relative z-10 flex items-center h-screen px-20">
-          <div className="w-1/2 flex flex-col items-center justify-center text-center">
-            <h1 className="text-6xl font-bold leading-snug text-red-900">
-              Discover, save,<br />repeat
-            </h1>
-            <p className="mt-4 text-lg text-red-900 max-w-md">
-              Find inspiration, save your favorite ideas, and revisit them anytime to fuel your creativity.
-            </p>
-            <Link
-              to="/explore"
-              className="mt-6 bg-red-500 text-white py-2 px-6 rounded-md hover:bg-red-600 transition"
-            >
-              Explore
-            </Link>
-          </div>
-        </main>
-      </div>
-    </div>
+      )}
+    </nav>
   );
 };
 
-export default HomePage;
+export default Navbar;
