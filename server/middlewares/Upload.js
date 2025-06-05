@@ -1,5 +1,5 @@
 import multer from "multer";
-import { v2 as cloudinary } from "cloudinary";
+import cloudinary from "../config/cloudinary.js";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 
 
@@ -7,7 +7,7 @@ const storage = new CloudinaryStorage({
   cloudinary,
   params: {
     folder: "Pinterest",
-    allowed_formats: ["jpg", "png", "jpeg", "mp4", "mov", "avif", "mkv",],
+    allowed_formats: ["jpg", "png", "jpeg", "mp4", "mov", "avif", "mkv","webp"],
   },
 });
 

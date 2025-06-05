@@ -1,16 +1,28 @@
-import { Link } from 'react-router-dom';
-import Sidebar from './Sidebar';
-import Navbar from './Navbar';
-import backgroundImage from '../assets/images/background.jpeg';
-import LoginForm from '../component/Login';
+import { Link, useNavigate } from "react-router-dom";
+import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
+import backgroundImage from "../assets/images/background.jpeg";
+import LoginForm from "./Login";
+import { useEffect,} from "react";
 const HomePage: React.FC = () => {
+const navigate = useNavigate();
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+ // your auth check logic
+
+  useEffect(() => {
+    if (user) {
+      navigate('/explore', { replace: true });
+    }
+  }, [user, navigate]);
+
+
   return (
     <div className="relative w-full">
       {/* First*/}
       <div className="relative min-h-screen w-full">
-        <div className="fixed top-0 left-0 z-20">
+        {/* <div className="fixed top-0 left-0 z-20">
           <Sidebar />
-        </div>
+        </div> */}
 
         <div className="fixed top-0 left-0 w-full z-30">
           <Navbar />
@@ -21,10 +33,10 @@ const HomePage: React.FC = () => {
             src={backgroundImage}
             alt="Pinterest Background"
             style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              filter: 'blur(4px)',
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              filter: "blur(4px)",
             }}
           />
         </div>
@@ -53,10 +65,13 @@ const HomePage: React.FC = () => {
         <main className="pl-48 pt-20 relative z-10 flex items-center h-screen px-20">
           <div className="w-1/2 flex flex-col items-center justify-center text-center">
             <h1 className="text-6xl font-bold leading-snug text-red-900">
-              See it, make it,<br />try it, do it
+              See it, make it,
+              <br />
+              try it, do it
             </h1>
             <p className="mt-4 text-lg text-red-900 max-w-md">
-              The best part of Pinterest is discovering new things and ideas from people around the world.
+              The best part of Pinterest is discovering new things and ideas
+              from people around the world.
             </p>
             <Link
               to="/explore"
@@ -81,10 +96,13 @@ const HomePage: React.FC = () => {
         <main className="pl-48 pt-20 relative z-10 flex items-center h-screen px-20">
           <div className="w-1/2 ml-auto flex flex-col items-center justify-center text-center">
             <h1 className="text-6xl font-bold leading-snug text-red-900">
-              Create, share,<br />inspire
+              Create, share,
+              <br />
+              inspire
             </h1>
             <p className="mt-4 text-lg text-red-900 max-w-md">
-              Join a global community to share your passions and inspire others with your creations.
+              Join a global community to share your passions and inspire others
+              with your creations.
             </p>
             <Link
               to="/explore"
@@ -109,10 +127,13 @@ const HomePage: React.FC = () => {
         <main className="pl-48 pt-20 relative z-10 flex items-center h-screen px-20">
           <div className="w-1/2 flex flex-col items-center justify-center text-center">
             <h1 className="text-6xl font-bold leading-snug text-red-900">
-              Discover, save,<br />repeat
+              Discover, save,
+              <br />
+              repeat
             </h1>
             <p className="mt-4 text-lg text-red-900 max-w-md">
-              Find inspiration, save your favorite ideas, and revisit them anytime to fuel your creativity.
+              Find inspiration, save your favorite ideas, and revisit them
+              anytime to fuel your creativity.
             </p>
             <Link
               to="/explore"

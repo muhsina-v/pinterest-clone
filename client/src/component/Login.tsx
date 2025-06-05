@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axiosInstance from '../utils/axios';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axios";
 
 interface FormData {
   email: string;
@@ -22,12 +22,21 @@ interface LoginResponse {
 
 const LoginPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
-  const [error, setError] = useState<string>('');
+  const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+
+  //login disapere
+
+  // useEffect (() => {
+  //   const token = localStorage.getItem('token');
+  //   if (token) {
+  //     navigate('/explore');
+  //   }
+  // }, [navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -35,20 +44,23 @@ const LoginPage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
     try {
-      const response = await axiosInstance.post<LoginResponse>('/api/user/login', formData);
+      const response = await axiosInstance.post<LoginResponse>(
+        "/api/user/login",
+        formData
+      );
       const { token, currentUser } = response.data;
 
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(currentUser));
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(currentUser));
 
       alert(response.data.message);
-      navigate('/Explore');
+      navigate("/explore", { replace: true });
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -90,14 +102,14 @@ const LoginPage: React.FC = () => {
             type="submit"
             disabled={loading}
             className={`bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition ${
-              loading ? 'opacity-50 cursor-not-allowed' : ''
+              loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
-            {loading ? 'Logging In...' : 'Log In'}
+            {loading ? "Logging In..." : "Log In"}
           </button>
         </form>
         <p className="mt-4 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
+          Don't have an account?{" "}
           <Link to="/register" className="text-blue-500 hover:underline">
             Sign up
           </Link>

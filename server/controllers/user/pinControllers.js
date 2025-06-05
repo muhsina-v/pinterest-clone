@@ -1,6 +1,7 @@
 import Pin from "../../models/pinSchema.js";
 
 export const createPin = async (req, res) => {
+  console.log("first")
   try {
     const { title, description } = req.body;
     const userId = req.user;

@@ -3,7 +3,8 @@ import userRoutes from "../server/routes/userRoutes.js";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
-import connectCloundinary from "./config/cloudinary.js";
+import {connectCloundinary} from "./config/cloudinary.js";
+import manageError from "./middlewares/manageError.js";
 const app = express();
 
 dotenv.config();
@@ -21,6 +22,8 @@ app.use(cors(corsOption));
 app.use(express.json());
 
 app.use("/api/user", userRoutes);
+
+app.use(manageError)
 
 mongoose
   .connect(process.env.MONGO_URL)
