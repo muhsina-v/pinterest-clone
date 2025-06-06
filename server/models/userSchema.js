@@ -27,6 +27,7 @@ const userSchema = new mongoose.Schema({
       ref: "User",
     },
   ],
+   savedPins: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Pin' }],
 });
 
 export default mongoose.model("User", userSchema);

@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import backgroundImage from "../assets/images/background.jpeg";
 import LoginForm from "./Login";

@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, Compass, Plus } from "lucide-react";
+import { Compass, Plus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar: React.FC = () => {
