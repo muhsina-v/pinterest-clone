@@ -39,13 +39,29 @@ const PinDetailPage: React.FC = () => {
     fetchPin();
   }, [id]);
 
-  const handleDownload = () => {
-    if (!pin) return;
+const handleDownload = async () => {
+  if (!pin) return;
+
+  try {
+    const response = await fetch(pin.image, {
+      mode: 'cors',
+    });
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+
     const link = document.createElement("a");
-    link.href = pin.image;
+    link.href = url;
     link.download = "pin-image.jpg";
+    document.body.appendChild(link); // Required for Firefox
     link.click();
-  };
+    link.remove();
+    window.URL.revokeObjectURL(url); // Clean up
+  } catch (error) {
+    console.error("Download failed:", error);
+    alert("Download failed. Try opening the image in a new tab and saving manually.");
+  }
+};
+
 
   const handleShare = async () => {
     if (navigator.share && pin) {
@@ -57,10 +73,31 @@ const PinDetailPage: React.FC = () => {
       alert("Web Share not supported.");
     }
   };
+const handleSave = async () => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
 
-  const handleSave = () => {
-    alert("Pin saved! (Simulated)");
-  };
+  if (!user?.token || !pin?._id) {
+    alert("You must be logged in to save a pin.");
+    return;
+  }
+
+  try {
+    await axiosInstance.post(
+      "/api/user/save-pin",
+      { pinId: pin._id },
+      {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      }
+    );
+
+    alert("Pin saved successfully!");
+  } catch (error) {
+    console.error("Failed to save pin:", error);
+    alert("Failed to save pin.");
+  }
+};
 
   const handleCommentSubmit = async () => {
     if (!comment.trim()) return;
@@ -91,7 +128,7 @@ const PinDetailPage: React.FC = () => {
   return (
     <div className="flex justify-center py-24 px-4 bg-white min-h-screen">
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-lg border border-gray-200">
-        {/* Top Bar */}
+        {/* srch */}
         <div className="flex justify-between items-center p-4">
           <div className="flex gap-4">
             <button onClick={handleShare} className="text-gray-600 hover:text-black">
@@ -109,7 +146,7 @@ const PinDetailPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Image */}
+        {/* Img*/}
         <div className="w-full flex justify-center px-4">
           <img
             src={pin.image}
@@ -118,7 +155,7 @@ const PinDetailPage: React.FC = () => {
           />
         </div>
 
-        {/* Comment Section */}
+        
         <div className="p-4">
           <div className="flex items-center gap-2 mb-2">
             <FaComment className="text-gray-600" />
@@ -127,7 +164,7 @@ const PinDetailPage: React.FC = () => {
             </h2>
           </div>
 
-          {/* Comment Input */}
+          {/* Comt */}
           <textarea
             value={comment}
             onChange={(e) => setComment(e.target.value)}
@@ -141,7 +178,7 @@ const PinDetailPage: React.FC = () => {
             Add Comment
           </button>
 
-          {/* Comment List */}
+        
           {pin.comments && pin.comments.length > 0 && (
             <ul className="mt-4 space-y-2">
               {pin.comments.map((c, index) => (

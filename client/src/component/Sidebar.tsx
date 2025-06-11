@@ -8,7 +8,6 @@ const Sidebar: React.FC = () => {
 
   const navItems = [
     // { icon: <Home size={26} />, path: "/", label: "Home" },
-    //dddd
     { icon: <Compass size={26} />, path: "/explore", label: "Explore" },
    { icon: <Plus size={26} />, path: "/create-pin", label: "Create" }
 

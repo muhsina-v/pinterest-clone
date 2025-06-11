@@ -10,6 +10,7 @@ import EditProfilePage from "./component/profile/EditProfile";
 import CreatePin from "./component/pins/CreatePin";
 import ProtectedRoute from "./component/ProtectedRoute";
 import PinDetailPage from "./component/pins/PinDetailPage";
+import ProfileWithFollow from "./component/profile/profileWithFollower";
 
 const App: React.FC = () => {
   const location = useLocation(); // 👈 Get current route path
@@ -48,6 +49,7 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/profile" element={<ProfileWithFollow />} />
         <Route
           path="/create-pin"
           element={
