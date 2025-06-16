@@ -2,21 +2,42 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../../utils/axios";
 
-const ProfilePage: React.FC = () => {
+interface ProfilePageProps {
+  profileId?: string;
+  loggedInUserId?: string;
+}
+
+const ProfilePage: React.FC<ProfilePageProps> = ({ profileId, loggedInUserId }) => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>({});
   const [savedPins, setSavedPins] = useState([]);
 
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    setUser(storedUser);
-  }, []);
+
+    if (!profileId) {
+      setUser(storedUser);
+    } else {
+      // If profileId is provided (i.e., viewing someone else's profile)
+      const fetchProfileUser = async () => {
+        try {
+          const res = await axiosInstance.get(`/api/user/${profileId}`);
+          setUser(res.data);
+        } catch (err) {
+          console.error("Error fetching profile user:", err);
+        }
+      };
+      fetchProfileUser();
+    }
+  }, [profileId]);
 
   useEffect(() => {
     const fetchSavedPins = async () => {
-      if (!user?._id) return;
+      const idToUse = profileId || user._id;
+      if (!idToUse) return;
+
       try {
-        const res = await axiosInstance.get(`/api/user/saved-pins/${user._id}`);
+        const res = await axiosInstance.get(`/api/user/saved-pins/${idToUse}`);
         setSavedPins(res.data);
       } catch (err) {
         console.error("Failed to fetch saved pins:", err);
@@ -24,7 +45,7 @@ const ProfilePage: React.FC = () => {
     };
 
     fetchSavedPins();
-  }, [user?._id]);
+  }, [profileId, user._id]);
 
   return (
     <div className="pt-24 px-4 max-w-6xl mx-auto">
@@ -39,9 +60,7 @@ const ProfilePage: React.FC = () => {
         <div>
           <h2 className="text-xl font-semibold">{user?.username || "Guest"}</h2>
 
-          {user?.bio && (
-            <p className="text-gray-700 text-sm mt-1">{user.bio}</p>
-          )}
+          {user?.bio && <p className="text-gray-700 text-sm mt-1">{user.bio}</p>}
 
           {user?.website && (
             <a
@@ -56,12 +75,14 @@ const ProfilePage: React.FC = () => {
 
           <p className="text-gray-600 text-sm mt-1">0 following</p>
 
-          <button
-            onClick={() => navigate("/edit-profile")}
-            className="text-sm text-blue-500 hover:underline mt-2"
-          >
-            Edit Profile
-          </button>
+          {(!profileId || profileId === loggedInUserId) && (
+            <button
+              onClick={() => navigate("/edit-profile")}
+              className="text-sm text-blue-500 hover:underline mt-2"
+            >
+              Edit Profile
+            </button>
+          )}
         </div>
       </div>
 

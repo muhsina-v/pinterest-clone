@@ -1,20 +1,20 @@
 import express from "express";
 import {
-  toggleFollow,
+  followToggle,
+  getFollowerList,
+  getFollowingList,
   removeFollower,
-  getFollowers,
-  getFollowing,
   getFollowCount,
   getFollowStatus,
-} from "../../controllers/user/followController.js";
-import { verifyToken } from "../../middlewares/verifyToken.js";
+} from "../controllers/followController.js";
+import { verifyToken } from "../middlewares/verifyToken.js";
 
 const router = express.Router();
 
-router.post("/toggle", verifyToken, toggleFollow);
+router.post("/toggle", verifyToken, followToggle);
+router.get("/followers/:id", getFollowerList);
+router.get("/following/:id", getFollowingList);
 router.delete("/remove/:id", verifyToken, removeFollower);
-router.get("/followers/:id", getFollowers);
-router.get("/following/:id", getFollowing);
 router.get("/count/:id", getFollowCount);
 router.get("/status/:id", verifyToken, getFollowStatus);
 

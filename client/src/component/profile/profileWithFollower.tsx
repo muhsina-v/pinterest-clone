@@ -1,39 +1,48 @@
 import React, { useEffect, useState } from "react";
-import ProfilePage from "./Profile.tsx"; 
+import ProfilePage from "./Profile";
 import {
   FollowButton,
   FollowCount,
   FollowerList,
-} from "../../component/follow.tsx";
+  FollowingList,
+} from "../../component/follow";
+import { useLocation } from "react-router-dom";
 
 const ProfileWithFollow: React.FC = () => {
-  const [user, setUser] = useState<any>({});
-  const [loggedInUser, setLoggedInUser] = useState<any>({});
+  const location = useLocation();
+  const [profileId, setProfileId] = useState<string>();
+  const [loggedInUser, setLoggedInUser] = useState<any>(null);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem("user") || "{}");
     setLoggedInUser(stored);
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const profileId = urlParams.get("id") || stored._id;
-    setUser({ ...stored, _id: profileId });
-  }, []);
+    const urlParams = new URLSearchParams(location.search);
+    const id = urlParams.get("id") || stored._id;
+    setProfileId(id);
+  }, [location.search]);
 
-  if (!user?._id) return null;
+  if (!profileId || !loggedInUser) {
+    return <div className="pt-24 px-4 max-w-6xl mx-auto text-center">Loading...</div>;
+  }
 
   return (
-    <div>
-      <div className="pt-24 px-4 max-w-6xl mx-auto mb-4">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center">
-          <FollowCount userId={user._id} />
-          {user._id !== loggedInUser._id && (
-            <FollowButton targetUserId={user._id} />
-          )}
-        </div>
-        <FollowerList userId={user._id} />
+    <div className="pt-24 px-4 max-w-6xl mx-auto mb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-4">
+        <FollowCount userId={profileId} />
+        {profileId !== loggedInUser._id && (
+          <FollowButton targetUserId={profileId} />
+        )}
       </div>
 
-      <ProfilePage />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        <FollowerList userId={profileId} />
+        <FollowingList userId={profileId} />
+      </div>
+
+      <div className="mt-10">
+        <ProfilePage profileId={profileId} loggedInUserId={loggedInUser._id} />
+      </div>
     </div>
   );
 };

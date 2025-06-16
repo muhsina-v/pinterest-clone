@@ -39,18 +39,18 @@ export const removeFollower = async (req, res, next) => {
   }
 };
 
-// export const getFollowers = async (req, res, next) => {
-//   try {
-//     const { id: userId } = req.params;
+export const getFollowers = async (req, res, next) => {
+  try {
+    const { id: userId } = req.params;
 
-//     const followers = await Follow.find({ following: userId })
-//       .populate("follower", "username profile fullname");
+    const followers = await Follow.find({ following: userId })
+      .populate("follower", "username profile fullname");
 
-//     res.status(200).json({ followers });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+    res.status(200).json({ followers });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const getFollowing = async (req, res, next) => {
   try {
@@ -79,15 +79,15 @@ export const getFollowCount = async (req, res, next) => {
   }
 };
 
-// export const getFollowStatus = async (req, res, next) => {
-//   try {
-//     const followerId = req.user.id;
-//     const followingId = req.params.id;
+export const getFollowStatus = async (req, res, next) => {
+  try {
+    const followerId = req.user.id;
+    const followingId = req.params.id;
 
-//     const follow = await Follow.findOne({ follower: followerId, following: followingId });
+    const follow = await Follow.findOne({ follower: followerId, following: followingId });
 
-//     res.status(200).json({ isFollowing: !!follow });
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+    res.status(200).json({ isFollowing: !!follow });
+  } catch (err) {
+    next(err);
+  }
+};
