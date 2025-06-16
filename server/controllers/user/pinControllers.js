@@ -53,6 +53,7 @@ export const getPinsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
     const pins = await Pin.find({ userId }).sort({ createdAt: -1 });
+    console.log(pins)
     res.status(200).json(pins);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch user pins", error });

@@ -1,5 +1,6 @@
 import express from "express";
 import userRoutes from "../server/routes/userRoutes.js";
+import followRoutes from '../server/routes/followRoutes.js'
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -22,6 +23,7 @@ app.use(cors(corsOption));
 app.use(express.json());
 
 app.use("/api/user", userRoutes);
+app.use("/api/follow",followRoutes)
 
 app.use(manageError)
 

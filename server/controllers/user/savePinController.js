@@ -1,35 +1,60 @@
-// controllers/user/savePinController.js
-
-import User from '../../models/userSchema.js';
+import Saved from "../../models/savePinSchema.js";
+import User from "../../models/userSchema.js";
 
 export const savePin = async (req, res) => {
-  const userId = req.user.id; // from JWT
+  const userId = req.user;
   const { pinId } = req.body;
+  console.log(userId,pinId)
 
   try {
-    const user = await User.findById(userId);
+    let saved = await Saved.findOne({ userId });
 
-    if (!user.savedPins.includes(pinId)) {
-      user.savedPins.push(pinId);
-      await user.save();
+    if (!saved) {
+      const newSaved = new Saved({
+        userId,
+        pins: [pinId],
+      });
+      await newSaved.save();
+      const updatedSaved = await newSaved.populate({
+        path: "pins",
+        select: "title description image link",
+      });
+      return res.status(201).json({ message: "Pin saved", saved: updatedSaved.pins });
     }
 
-    res.status(200).json({ message: "Pin saved successfully" });
+    const isPinSaved = saved.pins.some((pin) => pin.equals(pinId));
+    if (!isPinSaved) {
+      saved.pins.push(pinId);
+      await saved.save();
+      const updatedSaved = await saved.populate({
+        path: "pins",
+        select: "title description image link",
+      });
+      return res.status(201).json({ message: "Pin saved", saved: updatedSaved.pins });
+    }
+
+    return res.status(400).json({ message: "Pin already saved" });
   } catch (error) {
+    console.error("Save pin error:", error);
     res.status(500).json({ message: "Failed to save pin", error });
   }
 };
-
-
-
 
 export const getSavedPins = async (req, res) => {
   const userId = req.params.id;
 
   try {
-    const user = await User.findById(userId).populate("savedPins");
-    res.status(200).json(user.savedPins);
+    const saved = await Saved.findOne({ userId }).populate({
+      path: "pins",
+      select: "title description image link",
+    });
+    console.log("Saved pins for user:", saved);
+    if (!saved) {
+      return res.status(200).json([]); // Return empty array if no saved pins
+    }
+    res.status(200).json(saved.pins || []);
   } catch (error) {
+    console.error("Get saved pins error:", error);
     res.status(500).json({ message: "Error fetching saved pins", error });
   }
 };

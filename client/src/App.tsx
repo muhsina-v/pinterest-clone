@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
+
 import HomePage from "./component/Home";
 import Navbar from "./component/Navbar";
 import Sidebar from "./component/Sidebar";
@@ -8,18 +9,19 @@ import ExplorePage from "./component/Explore";
 import ProfilePage from "./component/profile/Profile";
 import EditProfilePage from "./component/profile/EditProfile";
 import CreatePin from "./component/pins/CreatePin";
+import EditPinPage from "./component/profile/Profile"; // ✅ Correct import
 import ProtectedRoute from "./component/ProtectedRoute";
 import PinDetailPage from "./component/pins/PinDetailPage";
-import ProfileWithFollow from "./component/profile/profileWithFollower";
+// import ProfileWithFollow from "./component/profile/profileWithFollower";
 
 const App: React.FC = () => {
-  const location = useLocation(); // 👈 Get current route path
+  const location = useLocation();
 
   return (
     <div className="relative min-h-screen w-full">
       <Navbar />
-      
-      {/* 👇 Hide sidebar if route is "/" */}
+
+      {/* 👇 Show Sidebar except on landing page */}
       {location.pathname !== "/" && <Sidebar />}
 
       <Routes>
@@ -32,7 +34,7 @@ const App: React.FC = () => {
           }
         />
         <Route path="/register" element={<RegisterPage />} />
-        
+
         <Route
           path="/explore"
           element={
@@ -41,6 +43,7 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/profile"
           element={
@@ -49,7 +52,7 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
-        <Route path="/profile" element={<ProfileWithFollow />} />
+
         <Route
           path="/create-pin"
           element={
@@ -58,6 +61,7 @@ const App: React.FC = () => {
             </ProtectedRoute>
           }
         />
+
         <Route
           path="/edit-profile"
           element={
@@ -68,7 +72,7 @@ const App: React.FC = () => {
         />
 
         <Route path="/pin/:id" element={<PinDetailPage />} />
-
+        <Route path="/edit-pin/:id" element={<EditPinPage />} /> {/* ✅ Fixed */}
       </Routes>
     </div>
   );

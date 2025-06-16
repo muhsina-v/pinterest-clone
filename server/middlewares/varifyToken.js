@@ -3,6 +3,7 @@ import CustomError from "../utils/customError.js";
 
 export const verifyToken = (req, res, next) => {
   try {
+    console.log("first")
     const authHeader = req.headers.authorization;
 
     if (!authHeader) {

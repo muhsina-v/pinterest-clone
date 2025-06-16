@@ -10,11 +10,14 @@ export const FollowButton = ({ targetUserId }: { targetUserId: string }) => {
     const checkStatus = async () => {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (!user?.token) return;
-
-      const res = await axios.get(`${API}/follow/status/${targetUserId}`, {
-        headers: { Authorization: `Bearer ${user.token}` },
-      });
-      setIsFollowing(res.data.isFollowing);
+      try {
+        const res = await axios.get(`${API}/follow/status/${targetUserId}`, {
+          headers: { Authorization: `Bearer ${user.token}` },
+        });
+        setIsFollowing(res.data.isFollowing);
+      } catch (err) {
+        console.error("Follow status error:", err);
+      }
     };
     checkStatus();
   }, [targetUserId]);
@@ -22,13 +25,16 @@ export const FollowButton = ({ targetUserId }: { targetUserId: string }) => {
   const handleToggleFollow = async () => {
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     if (!user?.token) return;
-
-    await axios.post(
-      `${API}/follow/toggle`,
-      { followingId: targetUserId },
-      { headers: { Authorization: `Bearer ${user.token}` } }
-    );
-    setIsFollowing(!isFollowing);
+    try {
+      await axios.post(
+        `${API}/follow/toggle`,
+        { followingId: targetUserId },
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      setIsFollowing(!isFollowing);
+    } catch (err) {
+      console.error("Toggle follow failed:", err);
+    }
   };
 
   return (

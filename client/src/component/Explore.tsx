@@ -14,6 +14,11 @@ interface Pin {
 
 const ExplorePage: React.FC = () => {
   const [pins, setPins] = useState<Pin[]>([]);
+  const [token, setToken] = useState("");
+  useEffect(() => {
+    const token = localStorage.getItem("token") || "{}";
+    setToken(token);
+  }, []);
 
   useEffect(() => {
     const fetchPins = async (): Promise<void> => {
@@ -48,16 +53,21 @@ const ExplorePage: React.FC = () => {
     }
   };
 
-  const handleSave = (pin: Pin) => {
-    const savedPins = JSON.parse(localStorage.getItem("savedPins") || "[]");
-    const isAlreadySaved = savedPins.some((p: Pin) => p._id === pin._id);
-
-    if (!isAlreadySaved) {
-      savedPins.push(pin);
-      localStorage.setItem("savedPins", JSON.stringify(savedPins));
-      alert("Pin saved!");
-    } else {
-      alert("Already saved!");
+  const handleSave = async (pin: Pin) => {
+    try {
+      const res = await axiosInstance.post(
+        "/api/user/save-pin",
+        { pinId: pin },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      console.log(res);
+      alert("ok");
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -72,9 +82,7 @@ const ExplorePage: React.FC = () => {
       </div>
 
       <main className="pt-16 sm:pt-20 lg:pl-26 lg:pt-20 px-2 sm:px-3 lg:px-4">
-        <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-red-900 text-center mb-8">
-          Explore Ideas
-        </h1>
+        
 
         <Masonry columns={{ xs: 2, sm: 3, md: 4, lg: 5, xl: 6 }} spacing={2}>
           {pins.map((pin: Pin) => (
