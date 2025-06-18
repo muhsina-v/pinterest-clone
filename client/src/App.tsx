@@ -9,9 +9,10 @@ import ExplorePage from "./component/Explore";
 import ProfilePage from "./component/profile/Profile";
 import EditProfilePage from "./component/profile/EditProfile";
 import CreatePin from "./component/pins/CreatePin";
-import EditPinPage from "./component/profile/Profile"; // ✅ Correct import
+import EditPinPage from "./component/profile/Profile";
 import ProtectedRoute from "./component/ProtectedRoute";
 import PinDetailPage from "./component/pins/PinDetailPage";
+import UserProfile from "./component/profile/userProfile";
 // import ProfileWithFollow from "./component/profile/profileWithFollower";
 
 const App: React.FC = () => {
@@ -21,7 +22,7 @@ const App: React.FC = () => {
     <div className="relative min-h-screen w-full">
       <Navbar />
 
-      {/* 👇 Show Sidebar except on landing page */}
+      {/*Show Sidebar except on landing page */}
       {location.pathname !== "/" && <Sidebar />}
 
       <Routes>
@@ -45,7 +46,7 @@ const App: React.FC = () => {
         />
 
         <Route
-          path="/profile"
+          path="/profile/:id"
           element={
             <ProtectedRoute>
               <ProfilePage />
@@ -72,7 +73,9 @@ const App: React.FC = () => {
         />
 
         <Route path="/pin/:id" element={<PinDetailPage />} />
-        <Route path="/edit-pin/:id" element={<EditPinPage />} /> {/* ✅ Fixed */}
+        <Route path="/edit-pin/:id" element={<EditPinPage />} />
+        <Route path="/profile/:userId" element={<UserProfile />} />
+        
       </Routes>
     </div>
   );

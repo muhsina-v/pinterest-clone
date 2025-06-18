@@ -1,14 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../utils/axios.ts";
 import { FaDownload, FaShareAlt, FaComment, FaHeart } from "react-icons/fa";
+import { User } from "lucide-react";
 
 interface Comment {
   text: string;
   createdAt: string;
-  user?: {
-    name: string;
-    avatar?: string;
+  commented: {
+    _id: string;
+    username: string;
+    avatar: string;
   };
 }
 
@@ -22,10 +24,13 @@ interface Pin {
     avatar?: string;
   };
   comments?: Comment[];
-  likedBy?: string[];
+  likedby?: string[];
 }
 
 const PinDetailPage: React.FC = () => {
+  const user = JSON.parse(localStorage.getItem("user") || "{}");
+  console.log(user);
+const navigate=useNavigate()
   const { id } = useParams<{ id: string }>();
   const [pin, setPin] = useState<Pin | null>(null);
   const [comment, setComment] = useState("");
@@ -40,11 +45,12 @@ const PinDetailPage: React.FC = () => {
       setPin(pinData);
       setLikesCount(pinData.likedBy?.length || 0);
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-      setLiked(user.id && pinData.likedBy?.includes(user.id) || false);
+      setLiked((user.id && pinData.likedby?.includes(user.id)) || false);
     } catch (err) {
       console.error("Failed to fetch pin:", err);
     }
   };
+  console.log(pin);
 
   useEffect(() => {
     fetchPin();
@@ -54,19 +60,18 @@ const PinDetailPage: React.FC = () => {
     const token = localStorage.getItem("token");
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     if (!token || !user.id) {
-      alert("You must be logged in to like a pin.");
+      alert("You must be logged in to like a pin");
       return;
     }
 
     const wasLiked = liked;
     const previousLikesCount = likesCount;
 
-    // Optimistic update
     setLiked(!wasLiked);
     setLikesCount(wasLiked ? likesCount - 1 : likesCount + 1);
 
     try {
-      const endpoint = wasLiked ? "/unlike" : "/like";
+      const endpoint = wasLiked ? "/api/user/unlike" : "/api/user/like";
       const res = await axiosInstance.post(
         endpoint,
         { postId: pin?._id },
@@ -76,6 +81,11 @@ const PinDetailPage: React.FC = () => {
           },
         }
       );
+      // console.log("Sending like/unlike request:", {
+      //   endpoint,
+      //   postId: pin?._id,
+      //   token,
+      // });
       console.log(`${wasLiked ? "Unlike" : "Like"} response:`, res.data);
       fetchPin(); // Refresh pin data
     } catch (err: any) {
@@ -85,13 +95,27 @@ const PinDetailPage: React.FC = () => {
       alert(err.response?.data?.message || "Failed to like/unlike pin.");
     }
   };
-
+//like and unlike a post
+  // const handleLikeToggle = async (postId,userid) => {
+  //   const isPostLiked = data?.likedby.some(item => item === userid);
+  //   if (isPostLiked===false) {
+  //     const response = await axiosInstance.post(`/like`, { postId });
+  //     const savedData = response.data.post;
+  //     handleAsync(fetchPin)();
+  //   } else {
+  //     const response = await axiosInstance.delete(`/unlike`, {
+  //       data: { postId },
+  //     });
+  //     const Data = response.data.post;
+  //     handleAsync(fetchPin)();
+  //   }
+  // };
   const handleDownload = async () => {
     if (!pin) return;
 
     try {
       const response = await fetch(pin.image, {
-        mode: 'cors',
+        mode: "cors",
       });
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -105,7 +129,9 @@ const PinDetailPage: React.FC = () => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Download failed:", error);
-      alert("Download failed. Try opening the image in a new tab and saving manually.");
+      alert(
+        "Download failed. Try opening the image in a new tab and saving manually."
+      );
     }
   };
 
@@ -152,7 +178,7 @@ const PinDetailPage: React.FC = () => {
       const token = localStorage.getItem("token");
       await axiosInstance.post(
         `/api/user/pin/${id}/comment`,
-        { text: comment },
+        { text: comment, commented: user?.id },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -170,14 +196,17 @@ const PinDetailPage: React.FC = () => {
   };
 
   const generateAvatarUrl = (name: string) => {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=40`;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      name
+    )}&background=random&color=fff&size=40`;
   };
 
-  if (!pin) return (
-    <div className="flex justify-center items-center min-h-screen bg-white">
-      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
-    </div>
-  );
+  if (!pin)
+    return (
+      <div className="flex justify-center items-center min-h-screen bg-white">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-white">
@@ -210,7 +239,10 @@ const PinDetailPage: React.FC = () => {
                   onClick={handleLike}
                   className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition-colors"
                 >
-                  <FaHeart className={liked ? "text-red-600" : "text-gray-700"} size={16} />
+                  <FaHeart
+                    className={liked ? "text-red-600" : "text-gray-700"}
+                    size={16}
+                  />
                 </button>
               </div>
             </div>
@@ -236,12 +268,16 @@ const PinDetailPage: React.FC = () => {
                 <button
                   onClick={handleLike}
                   className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors lg:hidden ${
-                    liked ? "bg-red-100 text-red-600" : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    liked
+                      ? "bg-red-100 text-red-600"
+                      : "bg-gray-100 text-gray-600 hover:bg-gray-200"
                   }`}
                 >
                   <FaHeart size={18} />
                 </button>
-                <span className="text-gray-700 text-sm">{likesCount} Likes</span>
+                <span className="text-gray-700 text-sm">
+                  {likesCount} Likes
+                </span>
               </div>
               <button
                 onClick={handleSave}
@@ -263,7 +299,7 @@ const PinDetailPage: React.FC = () => {
               )}
             </div>
 
-            {/* Author info */}
+            {/* user infor */}
             {pin.postedBy && (
               <div className="flex items-center gap-4 mb-8 p-4 bg-gray-50 rounded-2xl">
                 <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200">
@@ -282,7 +318,9 @@ const PinDetailPage: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900">{pin.postedBy.name}</p>
+                  <p className="font-semibold text-gray-900">
+                    {pin.postedBy.name}
+                  </p>
                   <p className="text-gray-600 text-sm">Pin creator</p>
                 </div>
               </div>
@@ -323,36 +361,47 @@ const PinDetailPage: React.FC = () => {
               {pin.comments && pin.comments.length > 0 && (
                 <div className="space-y-4">
                   {pin.comments.map((c, index) => (
-                    <div key={index} className="flex gap-4 p-4 hover:bg-gray-50 rounded-2xl transition-colors">
+                    <div
+                      key={index}
+                      className="flex gap-4 p-4 hover:bg-gray-50 rounded-2xl transition-colors"
+                    >
                       <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                        {c.user?.avatar ? (
+                        {c.commented?.avatar ? (
                           <img
-                            src={c.user.avatar}
-                            alt={c.user.name || 'User'}
+                            src={c.commented.avatar}
+                            alt={c.commented.username || "User"}
                             className="w-full h-full object-cover"
                           />
                         ) : (
                           <img
-                            src={generateAvatarUrl(c.user?.name || 'Anonymous User')}
-                            alt={c.user?.name || 'User'}
+                            src={generateAvatarUrl(
+                              c.commented?.username || "Anonymous User"
+                            )}
+                            alt={c.commented?.username || "User"}
                             className="w-full h-full object-cover"
                           />
                         )}
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-gray-900 text-sm">
-                            {c.user?.name || 'Anonymous User'}
+                          <span className="font-semibold text-gray-900 text-sm cursor-pointer" onClick={()=>navigate(`/profile/${c?.commented._id}`)}>
+                            {c?.commented?.username || "Anonymous User"}
                           </span>
                           <span className="text-gray-500 text-xs">
-                            {new Date(c.createdAt).toLocaleDateString('en-US', {
-                              month: 'short',
-                              day: 'numeric',
-                              year: new Date(c.createdAt).getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
+                            {new Date(c.createdAt).toLocaleDateString("en-US", {
+                              month: "short",
+                              day: "numeric",
+                              year:
+                                new Date(c.createdAt).getFullYear() !==
+                                new Date().getFullYear()
+                                  ? "numeric"
+                                  : undefined,
                             })}
                           </span>
                         </div>
-                        <p className="text-gray-800 text-sm leading-relaxed">{c.text}</p>
+                        <p className="text-gray-800 text-sm leading-relaxed">
+                          {c.text}
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -366,7 +415,9 @@ const PinDetailPage: React.FC = () => {
                     <FaComment className="text-gray-400" size={24} />
                   </div>
                   <p className="text-gray-500 text-lg">No comments yet</p>
-                  <p className="text-gray-400 text-sm">Be the first to share what you think!</p>
+                  <p className="text-gray-400 text-sm">
+                    Be the first to share what you think!
+                  </p>
                 </div>
               )}
             </div>

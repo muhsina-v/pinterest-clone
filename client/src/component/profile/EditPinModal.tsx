@@ -1,6 +1,14 @@
 import React from "react";
 import axiosInstance from "../../utils/axios";
-import { Pin } from "./ProfilePage";
+
+
+interface Pin {
+  _id: string;
+  title: string;
+  image: string;
+  description?: string;
+  link?: string;
+}
 
 interface EditFormData {
   title: string;
@@ -52,8 +60,8 @@ const EditPinModal: React.FC<EditPinModalProps> = ({
           {/* Pin Preview */}
           <div className="mb-6">
             <img
-              src={pin.image}
-              alt={pin.title}
+              src={pin.image || "https://via.placeholder.com/200"}
+              alt={pin.title || "Pin"}
               className="w-full h-48 object-cover rounded-xl"
             />
           </div>

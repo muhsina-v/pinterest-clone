@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../utils/axios";
 import EditPinModal from "./EditPinModal";
 
-// Define interfaces
 interface User {
-  id: string;
+  _id: string;
   username?: string;
   profileImage?: string;
   bio?: string;
   website?: string;
 }
 
-interface Pin {
+export interface Pin {
   _id: string;
   title: string;
   image: string;
@@ -22,7 +21,7 @@ interface Pin {
 
 interface ProfilePageProps {
   profileId?: string;
-  loggedInUserId?: string;
+  loggedInUserId?: {};
 }
 
 interface EditFormData {
@@ -31,10 +30,11 @@ interface EditFormData {
   link: string;
 }
 
-const ProfilePage: React.FC<ProfilePageProps> = ({
-  profileId,
-  loggedInUserId,
-}) => {
+const ProfilePage: React.FC<ProfilePageProps> = ({}) => {
+  const { id } = useParams<{ id: string }>();
+  const profileId = id;
+
+  const loggedInUserId = JSON.parse(localStorage.getItem("user") || "{}");
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
   const [profileUser, setProfileUser] = useState<User | null>(null);
@@ -45,44 +45,47 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [pinsLoading, setPinsLoading] = useState(false);
   const [pinsError, setPinsError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'created' | 'saved'>('created');
-  
+  const [activeTab, setActiveTab] = useState<"created" | "saved">("created");
+
   // Edit form states
   const [editingPin, setEditingPin] = useState<Pin | null>(null);
   const [editFormData, setEditFormData] = useState<EditFormData>({
-    title: '',
-    description: '',
-    link: ''
+    title: "",
+    description: "",
+    link: "",
   });
   const [isEditLoading, setIsEditLoading] = useState(false);
 
-  const isOwnProfile = !profileId || profileId === loggedInUserId;
-  const displayUser = isOwnProfile ? user : profileUser;
+  const isOwnProfile = loggedInUserId;
+  console.log("profileId", profileId);
+  console.log("loggedInUserId.id", loggedInUserId._id);
+  console.log("isOwnProfile", isOwnProfile);
 
+  const displayUser = isOwnProfile;
+  console.log("displayUser3", displayUser);
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    setUser(storedUser.id ? storedUser : null);
-
+    console.log("storedUser", storedUser);
+    setUser(storedUser._id ? storedUser : null);
     const fetchProfileData = async () => {
-      if (!storedUser.id) {
+      if (!storedUser) {
         console.warn("No user ID found in localStorage");
         return;
       }
 
       try {
         const response = await axiosInstance.get(
-          `/api/follow/followers/${storedUser.id}`
+          `/api/follow/followers/${storedUser.id || storedUser._id}`
         );
         console.log("Followers response:", response.data);
         setFollow(response.data.followers || []);
 
         if (profileId && storedUser.id && profileId !== storedUser.id) {
           const isFollowingRes = await axiosInstance.get(
-            `/api/follow/is-following/${storedUser.id}/${profileId}`
+            `/api/follow/is-following/${storedUser.id || storedUser._id}/${profileId}`
           );
           setIsFollowing(isFollowingRes.data.isFollowing);
 
-          // Fetch profile user data if viewing another user's profile
           const profileRes = await axiosInstance.get(`/api/user/${profileId}`);
           setProfileUser(profileRes.data.user || null);
         }
@@ -93,10 +96,13 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 
     fetchProfileData();
   }, [profileId]);
+  console.log("user", user);
 
   useEffect(() => {
     const fetchPins = async () => {
-      if (!user?.id) {
+      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+
+      if (!storedUser) {
         console.warn("User ID is undefined, skipping pin fetch");
         setPinsError("User not logged in");
         return;
@@ -106,14 +112,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
       setPinsError(null);
 
       try {
+        console.log("first");
         const savedRes = await axiosInstance.get(
-          `/api/user/saved-pins/${user.id}`
+          `/api/user/saved-pins/${storedUser.id || storedUser._id}`
         );
         console.log("Saved pins response:", savedRes.data);
         setSavedPins(savedRes.data || []);
 
         const uploadedRes = await axiosInstance.get(
-          `/api/user/pins/${user.id}`
+          `/api/user/pins/${storedUser.id || storedUser._id}`
         );
         console.log("Uploaded pins response:", uploadedRes.data);
         setUploadedPins(uploadedRes.data || []);
@@ -126,25 +133,25 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
     };
 
     fetchPins();
-  }, [user?.id]);
-
+  }, [user?._id]);
+  console.log("user", user);
   console.log("Current state:", { savedPins, uploadedPins });
 
   const handleFollowToggle = async () => {
-    if (!user?.id || !profileId) return;
+    if (!user?._id || !profileId) return;
     setIsLoading(true);
 
     try {
       if (isFollowing) {
         await axiosInstance.post(`/api/follow/unfollow`, {
-          followerId: user.id,
+          followerId: user._id,
           followingId: profileId,
         });
         setIsFollowing(false);
         setFollow((prev) => prev.filter((id) => id !== profileId));
       } else {
         await axiosInstance.post(`/api/follow/follow`, {
-          followerId: user.id,
+          followerId: user._id,
           followingId: profileId,
         });
         setIsFollowing(true);
@@ -156,54 +163,70 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
       setIsLoading(false);
     }
   };
-
+  // edit start
   const handleEditClick = (e: React.MouseEvent, pin: Pin) => {
-    e.stopPropagation(); // Prevent navigation to pin detail
+    e.stopPropagation();
+    console.log("Editing pin:", pin);
     setEditingPin(pin);
     setEditFormData({
-      title: pin.title || '',
-      description: pin.description || '',
-      link: pin.link || ''
+      title: pin.title || "",
+      description: pin.description || "",
+      link: pin.link || "",
     });
   };
 
   const handleEditFormChange = (field: keyof EditFormData, value: string) => {
-    setEditFormData(prev => ({
+    setEditFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editingPin) return;
-
+    if (!editingPin) {
+      alert("No pin selected for editing.");
+      return;
+    }
+    const token = localStorage.getItem("token");
     setIsEditLoading(true);
+    console.log(
+      "Submitting edit for pin ID:",
+      editingPin._id,
+      "Data:",
+      editFormData
+    );
     try {
-      const response = await axiosInstance.put(`/api/pins/${editingPin._id}`, {
-        title: editFormData.title,
-        description: editFormData.description,
-        link: editFormData.link
-      });
+      const response = await axiosInstance.put(
+        `/api/user/updatepin/${editingPin._id}`,
+        editFormData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-      // Update the pin in the appropriate array
+      console.log("Edit response:", response.data);
       const updatedPin = { ...editingPin, ...editFormData };
-      
-      if (activeTab === 'created') {
-        setUploadedPins(prev => 
-          prev.map(pin => pin._id === editingPin._id ? updatedPin : pin)
+
+      if (activeTab === "created") {
+        setUploadedPins((prev) =>
+          prev.map((pin) => (pin._id === editingPin._id ? updatedPin : pin))
         );
       } else {
-        setSavedPins(prev => 
-          prev.map(pin => pin._id === editingPin._id ? updatedPin : pin)
+        setSavedPins((prev) =>
+          prev.map((pin) => (pin._id === editingPin._id ? updatedPin : pin))
         );
       }
 
       setEditingPin(null);
-      setEditFormData({ title: '', description: '', link: '' });
-    } catch (err) {
+      setEditFormData({ title: "", description: "", link: "" });
+      alert("Pin updated successfully!");
+    } catch (err: any) {
       console.error("Error updating pin:", err);
-      alert("Failed to update pin. Please try again.");
+      const errorMessage = err.response?.data.message;
+      alert(errorMessage);
     } finally {
       setIsEditLoading(false);
     }
@@ -211,7 +234,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
 
   const handleEditCancel = () => {
     setEditingPin(null);
-    setEditFormData({ title: '', description: '', link: '' });
+    setEditFormData({ title: "", description: "", link: "" });
   };
 
   const handleDeletePin = async (pinId: string) => {
@@ -221,44 +244,49 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
       return;
     }
 
+    console.log("Deleting pin ID:", pinId);
     try {
-      await axiosInstance.delete(`/api/pins/${pinId}`, {
+      const response = await axiosInstance.delete(`/api/user/pins/${pinId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      // Remove the pin from the appropriate array
-      if (activeTab === 'created') {
-        setUploadedPins(prev => prev.filter(pin => pin._id !== pinId));
+      console.log("Delete response:", response.data);
+      if (activeTab === "created") {
+        setUploadedPins((prev) => prev.filter((pin) => pin._id !== pinId));
       } else {
-        setSavedPins(prev => prev.filter(pin => pin._id !== pinId));
+        setSavedPins((prev) => prev.filter((pin) => pin._id !== pinId));
       }
 
       setEditingPin(null);
       alert("Pin deleted successfully.");
     } catch (err: any) {
       console.error("Error deleting pin:", err);
-      alert(err.response?.data?.message || "Failed to delete pin. Please try again.");
+      const errorMessage =
+        err.response?.data?.message ||
+        "Failed to delete pin. The pin may not exist or you lack permission.";
+      alert(errorMessage);
     }
   };
 
-  const currentPins = activeTab === 'created' ? uploadedPins : savedPins;
-
+  const currentPins = activeTab === "created" ? uploadedPins : savedPins;
+  console.log("displayUser", displayUser);
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Section */}
       <div className="pt-20 pb-8 px-4 max-w-4xl mx-auto">
         <div className="text-center">
           <div className="relative inline-block mb-4">
             <img
-              src={displayUser?.profileImage || "https://via.placeholder.com/120"}
+              src={
+                displayUser?.profileImage || "https://via.placeholder.com/120"
+              }
               alt="Profile"
               className="w-28 h-28 rounded-full object-cover shadow-lg mx-auto"
             />
           </div>
           <h1 className="text-3xl font-semibold text-gray-900 mb-2">
-            {displayUser?.username || "Guest"}
+            {displayUser?.username ? displayUser?.username : "Guest"}
           </h1>
           {displayUser?.bio && (
             <p className="text-gray-600 text-base mb-4 max-w-md mx-auto">
@@ -277,7 +305,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
           )}
           <div className="flex justify-center gap-8 mb-6 text-sm">
             <div className="text-center">
-              <div className="font-semibold text-gray-900">{follow?.length || 0}</div>
+              <div className="font-semibold text-gray-900">
+                {follow?.length || 0}
+              </div>
               <div className="text-gray-600">following</div>
             </div>
           </div>
@@ -296,11 +326,15 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                   disabled={isLoading}
                   className={`px-6 py-3 font-semibold rounded-full transition-colors duration-200 ${
                     isFollowing
-                      ? 'bg-gray-100 hover:bg-gray-200 text-gray-900'
-                      : 'bg-red-600 hover:bg-red-700 text-white'
-                  } ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      ? "bg-gray-100 hover:bg-gray-200 text-gray-900"
+                      : "bg-red-600 hover:bg-red-700 text-white"
+                  } ${isLoading ? "opacity-50 cursor-not-allowed" : ""}`}
                 >
-                  {isLoading ? 'Loading...' : isFollowing ? 'Following' : 'Follow'}
+                  {isLoading
+                    ? "Loading..."
+                    : isFollowing
+                    ? "Following"
+                    : "Follow"}
                 </button>
                 <button className="px-6 py-3 bg-gray-100 hover:bg-gray-200 text-gray-900 font-semibold rounded-full transition-colors duration-200">
                   Message
@@ -311,26 +345,25 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="border-b border-gray-200 sticky top-16 bg-white z-10">
         <div className="max-w-4xl mx-auto px-4">
           <nav className="flex justify-center space-x-8">
             <button
-              onClick={() => setActiveTab('created')}
+              onClick={() => setActiveTab("created")}
               className={`py-4 px-2 font-semibold text-sm border-b-2 transition-colors duration-200 ${
-                activeTab === 'created'
-                  ? 'border-black text-black'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                activeTab === "created"
+                  ? "border-black text-black"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
               }`}
             >
               Created
             </button>
             <button
-              onClick={() => setActiveTab('saved')}
+              onClick={() => setActiveTab("saved")}
               className={`py-4 px-2 font-semibold text-sm border-b-2 transition-colors duration-200 ${
-                activeTab === 'saved'
-                  ? 'border-black text-black'
-                  : 'border-transparent text-gray-600 hover:text-gray-900'
+                activeTab === "saved"
+                  ? "border-black text-black"
+                  : "border-transparent text-gray-600 hover:text-gray-900"
               }`}
             >
               Saved
@@ -339,7 +372,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         </div>
       </div>
 
-      {/* Pins Grid */}
       <div className="px-4 py-8 max-w-7xl mx-auto">
         {pinsLoading ? (
           <div className="text-center py-20">
@@ -352,19 +384,29 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         ) : currentPins.length === 0 ? (
           <div className="text-center py-20">
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
+              <svg
+                className="w-8 h-8 text-gray-400"
+                fill="currentColor"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"
+                  clipRule="evenodd"
+                />
               </svg>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {activeTab === 'created' ? 'Nothing to show...yet!' : 'No saved Pins yet'}
+              {activeTab === "created"
+                ? "Nothing to show...yet!"
+                : "No saved Pins yet"}
             </h3>
             <p className="text-gray-600 max-w-md mx-auto">
-              {activeTab === 'created'
+              {activeTab === "created"
                 ? "Pins you create will live here. Create your first Pin to get started!"
                 : "Save your favorite ideas so you can easily come back to them later"}
             </p>
-            {activeTab === 'created' && (
+            {activeTab === "created" && (
               <button
                 className="mt-4 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full transition-colors duration-200"
                 onClick={() => navigate("/create")}
@@ -386,27 +428,25 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
                     src={pin.image || "https://via.placeholder.com/200"}
                     alt={pin.title || "Pin"}
                     className="w-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    style={{ aspectRatio: 'auto' }}
+                    style={{ aspectRatio: "auto" }}
                   />
                   <div className="absolute inset-0 group-hover:bg-black group-hover:bg-opacity-20 transition-all duration-300" />
-                  
-                  {/* Edit Icon - Only show for own profile and created pins */}
-                  {isOwnProfile && activeTab === 'created' && (
+                  {isOwnProfile && activeTab === "created" && (
                     <button
                       onClick={(e) => handleEditClick(e, pin)}
                       className="absolute top-3 right-3 w-8 h-8 bg-white rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center hover:bg-gray-50"
                     >
-                      <svg 
-                        className="w-4 h-4 text-gray-700" 
-                        fill="none" 
-                        stroke="currentColor" 
+                      <svg
+                        className="w-4 h-4 text-gray-700"
+                        fill="none"
+                        stroke="currentColor"
                         viewBox="0 0 24 24"
                       >
-                        <path 
-                          strokeLinecap="round" 
-                          strokeLinejoin="round" 
-                          strokeWidth={2} 
-                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" 
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                         />
                       </svg>
                     </button>
@@ -425,7 +465,6 @@ const ProfilePage: React.FC<ProfilePageProps> = ({
         )}
       </div>
 
-      {/* Edit Modal */}
       {editingPin && (
         <EditPinModal
           pin={editingPin}

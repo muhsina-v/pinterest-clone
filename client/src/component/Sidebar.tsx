@@ -14,7 +14,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <>
-      {/* Desktop Sidebar - Left side */}
+      {/* lap Sidebar */}
       <aside className="hidden md:flex fixed top-0 left-0 h-full w-20 bg-white shadow-sm border-r border-gray-200 pt-20 flex-col items-center gap-4 z-30">
         {navItems.map((item, index) => (
           <button
@@ -32,7 +32,7 @@ const Sidebar: React.FC = () => {
         ))}
       </aside>
 
-      {/* Mobile Bottom Navigation */}
+      {/* Mobile Bottombar*/}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-sm z-30">
         <div className="flex justify-around items-center py-2">
           {navItems.map((item, index) => (

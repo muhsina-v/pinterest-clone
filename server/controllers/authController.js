@@ -7,6 +7,7 @@ import {
   registerValidationSchema,
   loginValidationSchema,
 } from "../models/userJoiSchema.js"
+import userSchema from "../models/userSchema.js";
 
 dotenv.config();
 
@@ -75,6 +76,7 @@ export const loginUser = async (req, res, next) => {
       email: user.email,
       followers: user.followers,
       following: user.following,
+      profileImage: user.profileImage
     };
 
     res.status(200).json({
@@ -92,4 +94,49 @@ export const logoutUser = (req, res) => {
     success: true,
     message: "Logged out successfully",
   });
+};
+
+
+
+export const updateUser = async (req, res, next) => {
+  try {
+    const { id } = req.params
+    console.log("id",id)
+    console.log("req.body",req.body);
+    
+    const { username, email, password,bio } = req.body;
+
+    const profileImage = req.file ? req.file.path : undefined;
+
+    const updateData = {};
+
+    if (username) updateData.username = username;
+    if (email) updateData.email = email;
+    if (bio) updateData.bio = bio;
+
+
+    if (password) {
+      // Hash the password if provided
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password = hashedPassword;
+    }
+
+    if (profileImage) updateData.profileImage = profileImage;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { $set: updateData },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "User updated successfully", user: updatedUser });
+
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 };

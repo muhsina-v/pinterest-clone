@@ -7,8 +7,8 @@ interface FormData {
   password: string;
 }
 
-interface User {
-  id: string;
+export interface user {
+  _id: string;
   username: string;
   email: string;
 }
@@ -17,7 +17,7 @@ interface LoginResponse {
   success: boolean;
   message: string;
   token: string;
-  currentUser: User;
+  currentUser: user;
 }
 
 const LoginPage: React.FC = () => {
@@ -56,6 +56,7 @@ const LoginPage: React.FC = () => {
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(currentUser));
+      console.log(currentUser)
 
       alert(response.data.message);
       navigate("/explore", { replace: true });

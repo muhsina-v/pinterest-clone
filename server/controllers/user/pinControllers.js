@@ -41,7 +41,8 @@ export const getAllPins = async (req, res) => {
 
 export const getPinById = async (req, res) => {
   try {
-    const pin = await Pin.findById(req.params.id);
+    const pin = await Pin.findById(req.params.id).populate("User","username")
+    console.log(pin)
     if (!pin) return res.status(404).json({ message: "Pin not found" });
     res.status(200).json(pin);
   } catch (error) {
@@ -53,41 +54,51 @@ export const getPinsByUser = async (req, res) => {
   try {
     const { userId } = req.params;
     const pins = await Pin.find({ userId }).sort({ createdAt: -1 });
-    console.log(pins)
+    // console.log(pins)
     res.status(200).json(pins);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch user pins", error });
   }
 };
 
-export const deletePin = async (req, res) => {
+// Update a pin
+export const updatePin = async (req, res) => {
+  const { id } = req.params;
+  console.log(id)
+  const { title, description, link } = req.body;
+  console.log(req.body)
+
   try {
-    const { id } = req.params;
-    const pin = await Pin.findByIdAndDelete(id);
-    if (!pin) return res.status(404).json({ message: "Pin not found" });
-    res.status(200).json({ message: "Pin deleted successfully" });
+    const updatedPin = await Pin.findByIdAndUpdate(
+      id,
+      { title, description, link },
+      { new: true }
+    );
+
+    if (!updatedPin) {
+      return res.status(404).json({ message: "Pin not found" });
+    }
+
+    res.status(200).json(updatedPin);
   } catch (error) {
-    res.status(500).json({ message: "Failed to delete pin", error });
+    console.error("Error updating pin:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
-export const updatePin = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { title, description } = req.body;
+// Delete a pin
+export const deletePin = async (req, res) => {
+  const { id } = req.params;
 
-    const updatedData = { title, description };
-    if (req.file && req.file.path) {
-      updatedData.image = req.file.path;
+  try {
+    const deletedPin = await Pin.findByIdAndDelete(id);
+    if (!deletedPin) {
+      return res.status(404).json({ message: "Pin not found" });
     }
 
-    const updatedPin = await Pin.findByIdAndUpdate(id, updatedData, {
-      new: true,
-    });
-
-    if (!updatedPin) return res.status(404).json({ message: "Pin not found" });
-    res.status(200).json(updatedPin);
+    res.status(200).json({ message: "Pin deleted successfully" });
   } catch (error) {
-    res.status(500).json({ message: "Failed to update pin", error });
+    console.error("Error deleting pin:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

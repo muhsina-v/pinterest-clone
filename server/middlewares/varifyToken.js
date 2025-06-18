@@ -3,9 +3,9 @@ import CustomError from "../utils/customError.js";
 
 export const verifyToken = (req, res, next) => {
   try {
-    console.log("first")
+    // console.log("first")
     const authHeader = req.headers.authorization;
-
+console.log("authHeader",authHeader)
     if (!authHeader) {
       return next(new CustomError("You are not authenticated", 401));
     }

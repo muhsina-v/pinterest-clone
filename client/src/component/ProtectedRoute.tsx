@@ -1,4 +1,3 @@
-// ProtectedRoute.tsx
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { JSX, ReactNode } from 'react';

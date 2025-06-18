@@ -1,17 +1,24 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axiosInstence from "../../utils/axios";
+
 
 const EditProfilePage: React.FC = () => {
   const navigate = useNavigate();
-
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  console.log("23456",storedUser);
+  
+  
 
   const [formData, setFormData] = useState({
     username: storedUser.username || "",
     bio: storedUser.bio || "",
     website: storedUser.website || "",
-    profileImage: storedUser.profileImage || "https://via.placeholder.com/80",
+    profileImage: storedUser.profileImage || "",
   });
+
+  const [selectedImageFile, setSelectedImageFile] = useState<File | null>(null);
+  const [previewImage, setPreviewImage] = useState<string>(formData.profileImage);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -23,25 +30,47 @@ const EditProfilePage: React.FC = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setSelectedImageFile(file);
+
+      // For preview
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prev) => ({
-          ...prev,
-          profileImage: reader.result as string,
-        }));
-      };
+      reader.onloadend = () => setPreviewImage(reader.result as string);
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const updatedUser = { ...storedUser, ...formData };
+    const form = new FormData();
+    form.append("username", formData.username);
+    form.append("bio", formData.bio);
+    form.append("website", formData.website);
 
-    localStorage.setItem("user", JSON.stringify(updatedUser));
+    if (selectedImageFile) {
+      form.append("profileImage", selectedImageFile); 
+    }
+console.log(storedUser)
+    try {
+      const response = await axiosInstence.patch(
+        `/api/user/update/${storedUser.id || storedUser._id}`,
+        form,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
-    navigate("/profile");
+      console.log(response);
+      
+
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+
+      navigate(`/profile/${storedUser.id || storedUser._id}`);
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
   };
 
   return (

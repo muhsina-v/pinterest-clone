@@ -1,6 +1,12 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+
+interface Category {
+  id: string;
+  name: string;
+  image: string;
+  searchTerm: string;
+}
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
@@ -9,17 +15,74 @@ const Navbar: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchSuggestions, setSearchSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showCategories, setShowCategories] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const arrowRef = useRef<HTMLButtonElement>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<any>(null);
 
+  // Categories data with high-quality images
+  const categories: Category[] = [
+    {
+      id: "food",
+      name: "Food",
+      image: "https://www.shutterstock.com/image-photo/assortment-vibrant-gourmet-dishes-showcasing-260nw-2473449039.jpg",
+      searchTerm: "food recipes"
+    },
+    {
+      id: "health",
+      name: "Health",
+      image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "health wellness"
+    },
+    {
+      id: "decor",
+      name: "Decor",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "home decor"
+    },
+    {
+      id: "fashion",
+      name: "Fashion",
+      image: "https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "fashion style"
+    },
+    {
+      id: "travel",
+      name: "Travel",
+      image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "travel destinations"
+    },
+    {
+      id: "beauty",
+      name: "Beauty",
+      image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "beauty makeup"
+    },
+    {
+      id: "diy",
+      name: "DIY",
+      image: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "diy crafts"
+    },
+    {
+      id: "fitness",
+      name: "Fitness",
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "fitness workout"
+    }
+  ];
+
+  console.log("user", user);
+
   const handleLogoClick = () => {
     navigate("/");
   };
 
-  const handleProfileClick = () => {
-    navigate("/profile");
+  const handleProfileClick = (id:string) => {
+    console.log("id",id)
+    navigate(`/profile/${id}`);
+    
   };
 
   const handleArrowClick = () => {
@@ -52,6 +115,7 @@ const Navbar: React.FC = () => {
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query.trim())}`);
       setShowSuggestions(false);
+      setShowCategories(false);
     }
   };
 
@@ -64,7 +128,7 @@ const Navbar: React.FC = () => {
     const value = e.target.value;
     setSearchQuery(value);
     
-    // Mock search suggestions - replace with actual API call
+    // Show suggestions only when typing, not categories
     if (value.trim()) {
       const mockSuggestions = [
         `${value} ideas`,
@@ -75,14 +139,31 @@ const Navbar: React.FC = () => {
       ].filter(suggestion => suggestion.toLowerCase().includes(value.toLowerCase()));
       setSearchSuggestions(mockSuggestions.slice(0, 5));
       setShowSuggestions(true);
+      setShowCategories(false);
     } else {
       setShowSuggestions(false);
+      setShowCategories(true);
+    }
+  };
+
+  const handleSearchFocus = () => {
+    if (!searchQuery.trim()) {
+      setShowCategories(true);
+      setShowSuggestions(false);
+    } else {
+      setShowSuggestions(true);
+      setShowCategories(false);
     }
   };
 
   const handleSuggestionClick = (suggestion: string) => {
     setSearchQuery(suggestion);
     handleSearch(suggestion);
+  };
+
+  const handleCategoryClick = (category: Category) => {
+    setSearchQuery(category.searchTerm);
+    handleSearch(category.searchTerm);
   };
 
   useEffect(() => {
@@ -112,6 +193,7 @@ const Navbar: React.FC = () => {
         !searchRef.current.contains(event.target as Node)
       ) {
         setShowSuggestions(false);
+        setShowCategories(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -195,7 +277,7 @@ const Navbar: React.FC = () => {
                   placeholder="Search for ideas"
                   value={searchQuery}
                   onChange={handleSearchInputChange}
-                  onFocus={() => searchQuery && setShowSuggestions(true)}
+                  onFocus={handleSearchFocus}
                   className="w-full pl-12 pr-4 py-3 rounded-full border-none bg-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 focus:bg-white transition-all"
                 />
               </div>
@@ -228,17 +310,73 @@ const Navbar: React.FC = () => {
                 ))}
               </div>
             )}
+
+            {/* Categories Dropdown - Pinterest Style */}
+            {showCategories && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl shadow-xl border border-gray-200 z-50 overflow-hidden">
+                <div className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Browse categories</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    {categories.map((category) => (
+                      <button
+                        key={category.id}
+                        onClick={() => handleCategoryClick(category)}
+                        className="relative group overflow-hidden rounded-2xl h-32 transition-transform hover:scale-105"
+                      >
+                        {/* Background Image with Blur Effect */}
+                        <div 
+                          className="absolute inset-0 bg-cover bg-center transition-all duration-300 group-hover:scale-110"
+                          style={{
+                            backgroundImage: `url(${category.image})`,
+                            filter: 'blur(0.5px)'
+                          }}
+                        />
+                        
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-opacity-30 group-hover:bg-opacity-40 transition-all duration-300" />
+                        
+                        {/* Category Name */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <span className="text-white font-semibold text-lg tracking-wide drop-shadow-lg">
+                            {category.name}
+                          </span>
+                        </div>
+                        
+                        {/* Hover Effect */}
+                        <div className="absolute inset-0 border-2 border-transparent group-hover:border-white group-hover:border-opacity-50 rounded-2xl transition-all duration-300" />
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Popular searches */}
+                  <div className="mt-6 pt-4 border-t border-gray-100">
+                    <h4 className="text-sm font-medium text-gray-600 mb-3">Popular on Pinterest</h4>
+                    <div className="flex flex-wrap gap-2">
+                      {["Christmas", "Recipes", "Home decor", "Outfits", "Hairstyles"].map((term) => (
+                        <button
+                          key={term}
+                          onClick={() => handleSearch(term)}
+                          className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors"
+                        >
+                          {term}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </>
       )}
 
-      {/* Right Side - Profile & Actions */}
+      {/* Right Side Profile and Actions */}
       {user ? (
         <div className="flex items-center gap-2">
           {/* Profile */}
           <div className="relative">
             <img
-              onClick={handleProfileClick}
+              onClick={()=>handleProfileClick(user._id)}
               src={
                 user?.profileImage ||
                 "https://www.svgrepo.com/show/384674/account-avatar-profile-user-11.svg"

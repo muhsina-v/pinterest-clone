@@ -4,21 +4,18 @@ import mongoose from "mongoose";
 // Like a pin
 export const likePost = async (req, res, next) => {
   const { postId } = req.body;
-  const userId = req.userId;
-
-  if (!mongoose.Types.ObjectId.isValid(postId)) {
-    return res.status(400).json({ message: "Invalid pin ID" });
-  }
+  const userId = req.user;
 
   try {
     const pin = await Pin.findById(postId);
+    
     if (!pin) return res.status(404).json({ message: "Pin not found" });
 
-    if (pin.likedBy.includes(userId)) {
-      return res.status(400).json({ message: "Pin already liked" });
-    }
+    // if (pin.likedby.includes(userId)) {
+    //   return res.status(400).json({ message: "Pin already liked" });
+    // }
 
-    pin.likedBy.push(userId);
+    pin.likedby.push(userId);
     await pin.save();
     res.status(200).json({ message: "Pin liked", pin });
   } catch (err) {
@@ -29,21 +26,19 @@ export const likePost = async (req, res, next) => {
 // Unlike a pin
 export const unlikePost = async (req, res, next) => {
   const { postId } = req.body;
-  const userId = req.userId;
+  const userId = req.user;
+  console.log("hhhhoo",req.body)
 
-  if (!mongoose.Types.ObjectId.isValid(postId)) {
-    return res.status(400).json({ message: "Invalid pin ID" });
-  }
 
   try {
     const pin = await Pin.findById(postId);
     if (!pin) return res.status(404).json({ message: "Pin not found" });
 
-    if (!pin.likedBy.includes(userId)) {
-      return res.status(400).json({ message: "Pin not liked yet" });
-    }
+    // if (!pin.likedby.includes(userId)) {
+    //   return res.status(400).json({ message: "Pin not liked yet" });
+    // }
 
-    pin.likedBy.pull(userId);
+    pin.likedby.pull(userId);
     await pin.save();
     res.status(200).json({ message: "Pin unliked", pin });
   } catch (err) {
@@ -56,7 +51,7 @@ export const getLikedPosts = async (req, res, next) => {
   const userId = req.userId;
 
   try {
-    const likedPins = await Pin.find({ likedBy: userId }).populate("postedBy", "name email");
+    const likedPins = await Pin.find({ likedby: userId }).populate("postedby", "name email");
     if (likedPins.length === 0) {
       return res.status(404).json({ message: "No liked pins found" });
     }

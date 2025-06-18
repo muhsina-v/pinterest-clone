@@ -15,12 +15,14 @@ const pinSchema = new mongoose.Schema(
     comments: [
       {
         text: String,
+        commented:{type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
         createdAt: {
           type: Date,
           default: Date.now,
         },
       },
     ],
+    likedby:[{type: mongoose.Schema.Types.ObjectId,ref:"User"}]
   },
   { timestamps: true }
 );
