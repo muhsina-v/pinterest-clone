@@ -5,7 +5,8 @@ import User from "../../models/userSchema.js";
 export const getPinById = async (req, res) => {
   try {
     const pin = await Pin.findById(req.params.id)
-      .populate("comments.commented", "username avatar") // populate user info on comment
+      .populate("comments.commented", "username avatar")
+      .populate("userId" ,"username") // populate user info on comment
       .lean();
 
     if (!pin) {

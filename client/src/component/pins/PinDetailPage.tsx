@@ -18,6 +18,10 @@ interface Pin {
   _id: string;
   image: string;
   title: string;
+  userId: {
+    _id: string;
+    username: string;
+  };
   description?: string;
   postedBy?: {
     name: string;
@@ -30,7 +34,7 @@ interface Pin {
 const PinDetailPage: React.FC = () => {
   const user = JSON.parse(localStorage.getItem("user") || "{}");
   console.log(user);
-const navigate=useNavigate()
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const [pin, setPin] = useState<Pin | null>(null);
   const [comment, setComment] = useState("");
@@ -45,7 +49,9 @@ const navigate=useNavigate()
       setPin(pinData);
       setLikesCount(pinData.likedBy?.length || 0);
       const user = JSON.parse(localStorage.getItem("user") || "{}");
-      setLiked((user.id && pinData.likedby?.includes(user.id)) || false);
+      setLiked(
+        (user.id && pinData.likedby?.includes(user._id || user.id)) || false
+      );
     } catch (err) {
       console.error("Failed to fetch pin:", err);
     }
@@ -59,7 +65,8 @@ const navigate=useNavigate()
   const handleLike = async () => {
     const token = localStorage.getItem("token");
     const user = JSON.parse(localStorage.getItem("user") || "{}");
-    if (!token || !user.id) {
+    console.log(user);
+    if (!token || !user) {
       alert("You must be logged in to like a pin");
       return;
     }
@@ -95,7 +102,7 @@ const navigate=useNavigate()
       alert(err.response?.data?.message || "Failed to like/unlike pin.");
     }
   };
-//like and unlike a post
+  //like and unlike a post
   // const handleLikeToggle = async (postId,userid) => {
   //   const isPostLiked = data?.likedby.some(item => item === userid);
   //   if (isPostLiked===false) {
@@ -207,6 +214,7 @@ const navigate=useNavigate()
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
       </div>
     );
+  console.log(pin);
 
   return (
     <div className="min-h-screen bg-white">
@@ -246,6 +254,7 @@ const navigate=useNavigate()
                 </button>
               </div>
             </div>
+            <h1 className="text-2xl">{pin.userId.username}</h1>
           </div>
 
           {/* Right side - Details */}
@@ -384,7 +393,12 @@ const navigate=useNavigate()
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-gray-900 text-sm cursor-pointer" onClick={()=>navigate(`/profile/${c?.commented._id}`)}>
+                          <span
+                            className="font-semibold text-gray-900 text-sm cursor-pointer"
+                            onClick={() =>
+                              navigate(`/user-profile/${c?.commented._id}`)
+                            }
+                          >
                             {c?.commented?.username || "Anonymous User"}
                           </span>
                           <span className="text-gray-500 text-xs">

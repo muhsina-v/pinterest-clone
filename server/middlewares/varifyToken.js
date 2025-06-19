@@ -4,6 +4,7 @@ import CustomError from "../utils/customError.js";
 export const verifyToken = (req, res, next) => {
   try {
     // console.log("first")
+  
     const authHeader = req.headers.authorization;
 console.log("authHeader",authHeader)
     if (!authHeader) {
@@ -11,20 +12,17 @@ console.log("authHeader",authHeader)
     }
 
     const token = authHeader.split(" ")[1];
-    // console.log("Token:", token); // For debugging
+
 
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
-        // console.error("Token verification error:", err);
         return next(new CustomError("Token is not valid", 401));
       }
 
-      req.user = decoded.id; // Ensure `id` is the correct field in your JWT payload
-      // console.log("User ID:", req.user); // For debugging
+      req.user = decoded.id; 
       next();
     });
   } catch (err) {
-    // console.error("Middleware error:", err);
     next(err);
   }
 };

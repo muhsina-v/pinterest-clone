@@ -3,7 +3,7 @@ import Pin from "../../models/pinSchema.js";
 export const createPin = async (req, res) => {
   console.log("first")
   try {
-    const { title, description } = req.body;
+    const { title, description ,category } = req.body;
     const userId = req.user;
     console.log("errrrr", req.file);
 
@@ -18,6 +18,7 @@ export const createPin = async (req, res) => {
       description,
       userId,
       image: req.file.path,
+      category,
     });
 
     const savedPin = await newPin.save();
@@ -41,7 +42,7 @@ export const getAllPins = async (req, res) => {
 
 export const getPinById = async (req, res) => {
   try {
-    const pin = await Pin.findById(req.params.id).populate("User","username")
+    const pin = await Pin.findById(req.params.id).populate("userId","username")
     console.log(pin)
     if (!pin) return res.status(404).json({ message: "Pin not found" });
     res.status(200).json(pin);

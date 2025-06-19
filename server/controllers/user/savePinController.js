@@ -1,5 +1,5 @@
 import Saved from "../../models/savePinSchema.js";
-import User from "../../models/userSchema.js";
+
 
 export const savePin = async (req, res) => {
   const userId = req.user;

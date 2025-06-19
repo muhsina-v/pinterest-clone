@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Upload, Plus } from "lucide-react";
 import axiosInstence from "../../utils/axios";
@@ -10,6 +9,8 @@ const CreatePin: React.FC = () => {
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string>("");
   const [message, setMessage] = useState("");
+  const [category, setCategory] = useState("");
+
 
   useEffect(() => {
     if (!image) {
@@ -25,6 +26,7 @@ const CreatePin: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!image) {
       setMessage("Please upload an image");
       return;
@@ -35,6 +37,8 @@ const CreatePin: React.FC = () => {
     formData.append("description", description);
     formData.append("link", link);
     formData.append("image", image);
+    formData.append("category", category);
+
 
     try {
       const token = localStorage.getItem("token");
@@ -53,6 +57,8 @@ const CreatePin: React.FC = () => {
       setLink("");
       setImage(null);
       alert("success")
+      setCategory("");
+
 
     } catch (error: any) {
       setMessage(error.response?.data?.message || "Something went wrong");
@@ -139,6 +145,17 @@ const CreatePin: React.FC = () => {
                       required
                     />
                   </div>
+                  <div>
+  <input
+    type="text"
+    placeholder="Add a category (e.g. Nature, Food, Travel)"
+    value={category}
+    onChange={(e) => setCategory(e.target.value)}
+    className="w-full text-base placeholder-gray-400 border-0 border-b-2 border-gray-200 focus:border-red-500 focus:outline-none py-3 bg-transparent"
+    required
+  />
+</div>
+
 
                   <div>
                     <textarea

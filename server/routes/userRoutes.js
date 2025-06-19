@@ -21,6 +21,8 @@ import {
 } from "../controllers/user/savePinController.js";
 import { likePost, unlikePost } from "../controllers/user/likeController.js";
 import { updatePin, deletePin } from "../controllers/user/pinControllers.js";
+import { getUserProfile } from "../controllers/user/useridController.js";
+import Pin from "../models/pinSchema.js";
 
 const router = express.Router();
 
@@ -31,7 +33,7 @@ router.post("/login", loginUser);
 // pin routes
 router.post("/pin", verifyToken, upload.single("image"), createPin);
 router.get("/pin", getAllPins);
-router.get("/pin/:id", getPinById); 
+
 router.post("/pin/:id/comment", commentOnPin); 
 // saveroutes
 router.post("/save-pin", verifyToken, savePin);
@@ -47,6 +49,32 @@ router.put("/updatepin/:id", verifyToken, updatePin);
 router.delete("/pins/:id", verifyToken, deletePin);
 router.patch("/update/:id",upload.single("profileImage"),updateUser)
 
+router.get("/profile/:userId", getUserProfile);
 
+// GET /api/pins/category/:categoryName
+router.get("/category/:categoryName", async (req, res) => {
+  const pins = await Pin.find({ category: req.params.categoryName });
+  res.json(pins);
+});
+
+// GET /api/user/pin/search?category=food
+router.get("/search", async (req, res) => {
+  try {
+    console.log("query",req.query);
+    
+    const { category } = req.query;
+    console.log(category);
+    
+
+    const pins = await Pin.find({
+      category: { $regex: new RegExp(category, "i") }, // case-insensitive match
+    });
+
+    res.status(200).json({ pins });
+  } catch (error) {
+    res.status(500).json({ message: "Server error while searching pins." });
+  }
+});
+router.get("/pin/:id", getPinById); 
 
 export default router;

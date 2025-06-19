@@ -69,8 +69,9 @@ export const getFollowCount = async (req, res, next) => {
 
 export const getFollowStatus = async (req, res, next) => {
   try {
-    const followerId = req.user.id;
+    const followerId = req.user;
     const followingId = req.params.id;
+    console.log("follow check",followerId,followingId)
     const follow = await Follow.findOne({ follower: followerId, following: followingId });
     res.status(200).json({ isFollowing: !!follow });
   } catch (err) {

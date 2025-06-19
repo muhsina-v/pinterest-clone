@@ -27,49 +27,37 @@ const Navbar: React.FC = () => {
       id: "food",
       name: "Food",
       image: "https://www.shutterstock.com/image-photo/assortment-vibrant-gourmet-dishes-showcasing-260nw-2473449039.jpg",
-      searchTerm: "food recipes"
+      searchTerm: "food"
     },
     {
       id: "health",
       name: "Health",
       image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      searchTerm: "health wellness"
+      searchTerm: "health"
     },
     {
       id: "decor",
       name: "Decor",
       image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      searchTerm: "home decor"
+      searchTerm: "home"
     },
     {
       id: "fashion",
       name: "Fashion",
       image: "https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      searchTerm: "fashion style"
+      searchTerm: "fashion"
     },
     {
       id: "travel",
       name: "Travel",
       image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      searchTerm: "travel destinations"
+      searchTerm: "travel"
     },
     {
       id: "beauty",
       name: "Beauty",
       image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      searchTerm: "beauty makeup"
-    },
-    {
-      id: "diy",
-      name: "DIY",
-      image: "https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      searchTerm: "diy crafts"
-    },
-    {
-      id: "fitness",
-      name: "Fitness",
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-      searchTerm: "fitness workout"
+      searchTerm: "beauty"
     }
   ];
 
@@ -112,6 +100,8 @@ const Navbar: React.FC = () => {
   };
 
   const handleSearch = (query: string) => {
+    console.log("query",query);
+    
     if (query.trim()) {
       navigate(`/search?q=${encodeURIComponent(query.trim())}`);
       setShowSuggestions(false);
@@ -223,7 +213,7 @@ const Navbar: React.FC = () => {
       {user && (
         <>
           <div className="hidden md:flex items-center gap-2">
-            <button
+            {/* <button
               onClick={handleHomeClick}
               className={`px-4 py-3 rounded-full font-semibold transition-colors ${
                 isActive("/") || isActive("/home")
@@ -232,7 +222,7 @@ const Navbar: React.FC = () => {
               }`}
             >
               Home
-            </button>
+            </button> */}
             <button
               onClick={handleExploreClick}
               className={`px-4 py-3 rounded-full font-semibold transition-colors ${
@@ -348,7 +338,7 @@ const Navbar: React.FC = () => {
                     ))}
                   </div>
                   
-                  {/* Popular searches */}
+                  {/* Popular searches
                   <div className="mt-6 pt-4 border-t border-gray-100">
                     <h4 className="text-sm font-medium text-gray-600 mb-3">Popular on Pinterest</h4>
                     <div className="flex flex-wrap gap-2">
@@ -362,7 +352,7 @@ const Navbar: React.FC = () => {
                         </button>
                       ))}
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             )}
@@ -423,15 +413,16 @@ const Navbar: React.FC = () => {
               </div>
               
               <div className="py-2">
-                <button
-                  onClick={handleProfileClick}
-                  className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3"
-                >
-                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="text-gray-900">View profile</span>
-                </button>
+              <button
+  onClick={() => handleProfileClick(user?.id)}
+  className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3"
+>
+  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+  <span className="text-gray-900">View profile</span>
+</button>
+
                 
                 <button className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors flex items-center gap-3">
                   <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -456,7 +447,7 @@ const Navbar: React.FC = () => {
       ) : (
         <div className="flex items-center gap-2">
           <button
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/register")}
             className="px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-full font-semibold transition-colors"
           >
             Sign up

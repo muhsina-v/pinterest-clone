@@ -71,7 +71,7 @@ export const loginUser = async (req, res, next) => {
     const token = createToken(user._id);
 
     const currentUser = {
-      id: user._id,
+      _id: user._id,
       username: user.username,
       email: user.email,
       followers: user.followers,

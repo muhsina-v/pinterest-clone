@@ -13,6 +13,8 @@ import EditPinPage from "./component/profile/Profile";
 import ProtectedRoute from "./component/ProtectedRoute";
 import PinDetailPage from "./component/pins/PinDetailPage";
 import UserProfile from "./component/profile/userProfile";
+import Search from "./component/Search";
+
 // import ProfileWithFollow from "./component/profile/profileWithFollower";
 
 const App: React.FC = () => {
@@ -74,8 +76,9 @@ const App: React.FC = () => {
 
         <Route path="/pin/:id" element={<PinDetailPage />} />
         <Route path="/edit-pin/:id" element={<EditPinPage />} />
-        <Route path="/profile/:userId" element={<UserProfile />} />
-        
+        <Route path="/user-profile/:userId" element={<UserProfile />} />
+        <Route path="/search" element={<Search />} />
+
       </Routes>
     </div>
   );

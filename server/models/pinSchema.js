@@ -4,8 +4,9 @@ const pinSchema = new mongoose.Schema(
   {
     title: String,
     description: String,
-    userId: String,
+    userId: { type: String, ref: "User" },
     image: String,
+    category: String, 
 
     postedBy: {
       name: String,
@@ -15,14 +16,18 @@ const pinSchema = new mongoose.Schema(
     comments: [
       {
         text: String,
-        commented:{type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        commented: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "User",
+          required: true,
+        },
         createdAt: {
           type: Date,
           default: Date.now,
         },
       },
     ],
-    likedby:[{type: mongoose.Schema.Types.ObjectId,ref:"User"}]
+    likedby: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   },
   { timestamps: true }
 );
