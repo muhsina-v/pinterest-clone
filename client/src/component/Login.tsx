@@ -42,30 +42,39 @@ const LoginPage: React.FC = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+ // In your LoginPage component, modify the handleSubmit function:
 
-    try {
-      const response = await axiosInstance.post<LoginResponse>(
-        "/api/user/login",
-        formData
-      );
-      const { token, currentUser } = response.data;
-
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(currentUser));
-      console.log(currentUser)
-
-      alert(response.data.message);
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+  
+  try {
+    const response = await axiosInstance.post<LoginResponse>(
+      "/api/user/login",
+      formData
+    );
+    const { token, currentUser } = response.data;
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(currentUser));
+    
+    // Check if user has selected categories before
+    const existingCategories = localStorage.getItem("userCategories");
+    
+    alert(response.data.message);
+    
+    // Redirect to category selection if no categories exist, otherwise to explore
+    if (!existingCategories) {
+      navigate("/category-selection", { replace: true });
+    } else {
       navigate("/explore", { replace: true });
-    } catch (err: any) {
-      setError(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (err: any) {
+    setError(err.response?.data?.message || "Login failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center">

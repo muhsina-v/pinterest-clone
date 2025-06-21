@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema({
     },
   ],
    savedPins: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Pin' }],
+    selectedCategories: [String],
 });
 
 export default mongoose.model("User", userSchema);
