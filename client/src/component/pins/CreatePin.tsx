@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Upload, Plus } from "lucide-react";
+import { Upload, Plus, ChevronDown } from "lucide-react";
 import axiosInstence from "../../utils/axios";
 
 const CreatePin: React.FC = () => {
@@ -10,7 +10,47 @@ const CreatePin: React.FC = () => {
   const [preview, setPreview] = useState<string>("");
   const [message, setMessage] = useState("");
   const [category, setCategory] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
+
+  const categories = [
+    {
+      id: "food",
+      name: "Food",
+      image: "https://www.shutterstock.com/image-photo/assortment-vibrant-gourmet-dishes-showcasing-260nw-2473449039.jpg",
+      searchTerm: "food"
+    },
+    {
+      id: "health",
+      name: "Health",
+      image: "https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "health"
+    },
+    {
+      id: "decor",
+      name: "Decor",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "home"
+    },
+    {
+      id: "fashion",
+      name: "Fashion",
+      image: "https://images.unsplash.com/photo-1445205170230-053b83016050?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "fashion"
+    },
+    {
+      id: "travel",
+      name: "Travel",
+      image: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "travel"
+    },
+    {
+      id: "beauty",
+      name: "Beauty",
+      image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
+      searchTerm: "beauty"
+    }
+  ];
 
   useEffect(() => {
     if (!image) {
@@ -32,13 +72,17 @@ const CreatePin: React.FC = () => {
       return;
     }
 
+    if (!category) {
+      setMessage("Please select a category");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
     formData.append("link", link);
     formData.append("image", image);
     formData.append("category", category);
-
 
     try {
       const token = localStorage.getItem("token");
@@ -59,12 +103,18 @@ const CreatePin: React.FC = () => {
       alert("success")
       setCategory("");
 
-
     } catch (error: any) {
       setMessage(error.response?.data?.message || "Something went wrong");
       console.log(error);
     }
   };
+
+  const handleCategorySelect = (categoryId: string) => {
+    setCategory(categoryId);
+    setIsDropdownOpen(false);
+  };
+
+  const selectedCategory = categories.find(cat => cat.id === category);
 
   return (
     <div className="min-h-screen bg-gray-50 pt-20 pb-30 px-4 md:px-8 lg:px-16">
@@ -145,17 +195,38 @@ const CreatePin: React.FC = () => {
                       required
                     />
                   </div>
-                  <div>
-  <input
-    type="text"
-    placeholder="Add a category (e.g. Nature, Food, Travel)"
-    value={category}
-    onChange={(e) => setCategory(e.target.value)}
-    className="w-full text-base placeholder-gray-400 border-0 border-b-2 border-gray-200 focus:border-red-500 focus:outline-none py-3 bg-transparent"
-    required
-  />
-</div>
 
+                  {/* Category Dropdown */}
+                  <div className="relative">
+                    <div
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="w-full text-base placeholder-gray-400 border-0 border-b-2 border-gray-200 focus:border-red-500 py-3 bg-transparent cursor-pointer flex items-center justify-between"
+                    >
+                      <span className={selectedCategory ? "text-gray-900" : "text-gray-400"}>
+                        {selectedCategory ? selectedCategory.name : "Select a category"}
+                      </span>
+                      <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                    
+                    {isDropdownOpen && (
+                      <div className="absolute top-full left-0 right-0 z-10 bg-white border border-gray-200 rounded-lg shadow-lg mt-1 max-h-60 overflow-y-auto">
+                        {categories.map((cat) => (
+                          <div
+                            key={cat.id}
+                            onClick={() => handleCategorySelect(cat.id)}
+                            className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          >
+                            <img
+                              src={cat.image}
+                              alt={cat.name}
+                              className="w-10 h-10 rounded-lg object-cover mr-3"
+                            />
+                            <span className="text-gray-900 font-medium">{cat.name}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
 
                   <div>
                     <textarea

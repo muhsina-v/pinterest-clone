@@ -97,43 +97,42 @@ const ProfilePage: React.FC<ProfilePageProps> = ({}) => {
     fetchProfileData();
   }, [profileId]);
   console.log("user", user);
+////////////////////
+ useEffect(() => {
+  const fetchPins = async () => {
+    if (!profileId) {
+      setPinsError("No profile ID provided");
+      return;
+    }
 
-  useEffect(() => {
-    const fetchPins = async () => {
-      const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    setPinsLoading(true);
+    setPinsError(null);
 
-      if (!storedUser) {
-        console.warn("User ID is undefined, skipping pin fetch");
-        setPinsError("User not logged in");
-        return;
-      }
+    try {
+      const savedRes = await axiosInstance.get(
+        `/api/user/saved-pins/${profileId}`
+      );
+      //console.log("Saved Pins Response:", savedRes.data);
+      setSavedPins(savedRes.data || []);
 
-      setPinsLoading(true);
-      setPinsError(null);
+      const uploadedRes = await axiosInstance.get(
+        `/api/user/pins/${profileId}`
+        
 
-      try {
-        console.log("first");
-        const savedRes = await axiosInstance.get(
-          `/api/user/saved-pins/${storedUser.id || storedUser._id}`
-        );
-        console.log("Saved pins response:", savedRes.data);
-        setSavedPins(savedRes.data || []);
+      );
+       console.log(" Uploaded Pins Response:", uploadedRes.data);
+      setUploadedPins(uploadedRes.data || []);
+    } catch (err) {
+      console.error("Failed to fetch pins:", err);
+      setPinsError("Failed to load pins. Please try again.");
+    } finally {
+      setPinsLoading(false);
+    }
+  };
 
-        const uploadedRes = await axiosInstance.get(
-          `/api/user/pins/${storedUser.id || storedUser._id}`
-        );
-        console.log("Uploaded pins response:", uploadedRes.data);
-        setUploadedPins(uploadedRes.data || []);
-      } catch (err) {
-        console.error("Failed to fetch pins:", err);
-        setPinsError("Failed to load pins. Please try again.");
-      } finally {
-        setPinsLoading(false);
-      }
-    };
+  fetchPins();
+}, [profileId]); // this must depend on profileId
 
-    fetchPins();
-  }, [user?._id]);
   console.log("user", user);
   console.log("Current state:", { savedPins, uploadedPins });
 
@@ -198,7 +197,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({}) => {
     );
     try {
       const response = await axiosInstance.put(
-        `/api/user/updatepin/${editingPin._id}`,
+       `/api/user/pins/${profileId}`,
         editFormData,
         {
           headers: {
@@ -409,7 +408,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({}) => {
             {activeTab === "created" && (
               <button
                 className="mt-4 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full transition-colors duration-200"
-                onClick={() => navigate("/create")}
+                onClick={() => navigate("/create-pin")}
               >
                 Create Pin
               </button>

@@ -4,7 +4,7 @@ import Saved from "../../models/savePinSchema.js";
 export const savePin = async (req, res) => {
   const userId = req.user;
   const { pinId } = req.body;
-  console.log(userId,pinId)
+  console.log("User:", userId, "Pin:", pinId);
 
   try {
     let saved = await Saved.findOne({ userId });
@@ -23,7 +23,18 @@ export const savePin = async (req, res) => {
     }
 
     const isPinSaved = saved.pins.some((pin) => pin.equals(pinId));
-    if (!isPinSaved) {
+
+    if (isPinSaved) {
+      // Unsave the pin
+      saved.pins = saved.pins.filter((pin) => !pin.equals(pinId));
+      await saved.save();
+      const updatedSaved = await saved.populate({
+        path: "pins",
+        select: "title description image link",
+      });
+      return res.status(200).json({ message: "Pin unsaved", saved: updatedSaved.pins });
+    } else {
+      //  Save the pin
       saved.pins.push(pinId);
       await saved.save();
       const updatedSaved = await saved.populate({
@@ -32,13 +43,12 @@ export const savePin = async (req, res) => {
       });
       return res.status(201).json({ message: "Pin saved", saved: updatedSaved.pins });
     }
-
-    return res.status(400).json({ message: "Pin already saved" });
   } catch (error) {
-    console.error("Save pin error:", error);
-    res.status(500).json({ message: "Failed to save pin", error });
+    console.error("Save/Unsave pin error:", error);
+    res.status(500).json({ message: "Failed to save/unsave pin", error });
   }
 };
+
 
 export const getSavedPins = async (req, res) => {
   const userId = req.params.id;
@@ -50,7 +60,7 @@ export const getSavedPins = async (req, res) => {
     });
     console.log("Saved pins for user:", saved);
     if (!saved) {
-      return res.status(200).json([]); // Return empty array if no saved pins
+      return res.status(200).json([]);
     }
     res.status(200).json(saved.pins || []);
   } catch (error) {

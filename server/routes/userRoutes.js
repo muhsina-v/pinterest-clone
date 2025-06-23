@@ -4,6 +4,7 @@ import { loginUser, registerUser, updateUser } from "../controllers/authControll
 import {
   createPin,
   getAllPins,
+  getCategoryBasedPins,
   getPinsByUser,
 } from "../controllers/user/pinControllers.js";
 import {
@@ -23,6 +24,7 @@ import { likePost, unlikePost } from "../controllers/user/likeController.js";
 import { updatePin, deletePin } from "../controllers/user/pinControllers.js";
 import { getUserProfile } from "../controllers/user/useridController.js";
 import Pin from "../models/pinSchema.js";
+import { getPinsByCategories } from "../controllers/user/categoryController.js";
 
 const router = express.Router();
 
@@ -67,7 +69,7 @@ router.get("/search", async (req, res) => {
     
 
     const pins = await Pin.find({
-      category: { $regex: new RegExp(category, "i") }, // case-insensitive match
+      category: { $regex: new RegExp(category, "i") },
     });
 
     res.status(200).json({ pins });
@@ -76,5 +78,8 @@ router.get("/search", async (req, res) => {
   }
 });
 router.get("/pin/:id", getPinById); 
+
+router.post("/category-based-pins", getPinsByCategories);
+router.post("/pin/category-based-pins", getCategoryBasedPins);
 
 export default router;

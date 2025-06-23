@@ -103,3 +103,22 @@ export const deletePin = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+// categery
+
+export const getCategoryBasedPins = async (req, res) => {
+  try {
+    const { categories } = req.body;
+
+    if (!categories || categories.length === 0) {
+      const allPins = await Pin.find().populate("userId", "username");
+      return res.status(200).json(allPins);
+    }
+
+    const filteredPins = await Pin.find({ category: { $in: categories } }).populate("userId", "username");
+
+    res.status(200).json(filteredPins);
+  } catch (error) {
+    console.error("Error fetching category pins:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};

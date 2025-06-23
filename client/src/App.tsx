@@ -75,7 +75,7 @@ const App: React.FC = () => {
           }
         />
 
-        <Route path="/pin/:id" element={<PinDetailPage />} />
+        <Route path="/pin-detail/:id" element={<PinDetailPage />}/>
         <Route path="/edit-pin/:id" element={<EditPinPage />} />
         <Route path="/user-profile/:userId" element={<UserProfile />} />
         <Route path="/search" element={<Search />} />

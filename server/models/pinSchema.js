@@ -4,9 +4,9 @@ const pinSchema = new mongoose.Schema(
   {
     title: String,
     description: String,
-    userId: { type: String, ref: "User" },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     image: String,
-    category: String, 
+    category:  { type: String, required:true }, 
 
     postedBy: {
       name: String,

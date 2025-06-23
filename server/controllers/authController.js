@@ -7,7 +7,7 @@ import {
   registerValidationSchema,
   loginValidationSchema,
 } from "../models/userJoiSchema.js"
-import userSchema from "../models/userSchema.js";
+
 
 dotenv.config();
 
@@ -116,7 +116,7 @@ export const updateUser = async (req, res, next) => {
 
 
     if (password) {
-      // Hash the password if provided
+ 
       const hashedPassword = await bcrypt.hash(password, 10);
       updateData.password = hashedPassword;
     }

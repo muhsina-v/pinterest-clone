@@ -29,52 +29,46 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  //login disapere
-
-  // useEffect (() => {
-  //   const token = localStorage.getItem('token');
-  //   if (token) {
-  //     navigate('/explore');
-  //   }
-  // }, [navigate]);
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
- // In your LoginPage component, modify the handleSubmit function:
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
-  
-  try {
-    const response = await axiosInstance.post<LoginResponse>(
-      "/api/user/login",
-      formData
-    );
-    const { token, currentUser } = response.data;
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(currentUser));
-    
-    // Check if user has selected categories before
-    const existingCategories = localStorage.getItem("userCategories");
-    
-    alert(response.data.message);
-    
-    // Redirect to category selection if no categories exist, otherwise to explore
-    if (!existingCategories) {
-      navigate("/category-selection", { replace: true });
-    } else {
-      navigate("/explore", { replace: true });
+    try {
+      const response = await axiosInstance.post<LoginResponse>(
+        "/api/user/login",
+        formData
+      );
+
+      const { token, currentUser } = response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(currentUser));
+
+      
+      const categoryData = localStorage.getItem("userCategories");
+      const existingCategories = categoryData ? JSON.parse(categoryData) : null;
+
+      alert(response.data.message);
+
+      if (!existingCategories || existingCategories.length === 0) {
+        navigate("/explore", { replace: true });
+
+      } else {
+        console.log("userCategories:", existingCategories);
+
+         navigate("/category-selection", { replace: true });
+      }
+
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
-  } catch (err: any) {
-    setError(err.response?.data?.message || "Login failed");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="relative min-h-screen w-full flex items-center justify-center">

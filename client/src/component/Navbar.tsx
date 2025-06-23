@@ -21,7 +21,6 @@ const Navbar: React.FC = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const [user, setUser] = useState<any>(null);
 
-  // Categories data with high-quality images
   const categories: Category[] = [
     {
       id: "food",
@@ -118,7 +117,7 @@ const Navbar: React.FC = () => {
     const value = e.target.value;
     setSearchQuery(value);
     
-    // Show suggestions only when typing, not categories
+   
     if (value.trim()) {
       const mockSuggestions = [
         `${value} ideas`,
@@ -209,7 +208,7 @@ const Navbar: React.FC = () => {
         </span>
       </div>
 
-      {/* Navigation Links and Search Bar - Only show when logged in */}
+   
       {user && (
         <>
           <div className="hidden md:flex items-center gap-2">
@@ -273,7 +272,6 @@ const Navbar: React.FC = () => {
               </div>
             </form>
 
-            {/* Search Suggestions */}
             {showSuggestions && searchSuggestions.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl shadow-lg border border-gray-200 py-2 z-50">
                 {searchSuggestions.map((suggestion, index) => (
@@ -301,7 +299,7 @@ const Navbar: React.FC = () => {
               </div>
             )}
 
-            {/* Categories Dropdown - Pinterest Style */}
+           
             {showCategories && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl shadow-xl border border-gray-200 z-50 overflow-hidden">
                 <div className="p-6">
@@ -313,7 +311,7 @@ const Navbar: React.FC = () => {
                         onClick={() => handleCategoryClick(category)}
                         className="relative group overflow-hidden rounded-2xl h-32 transition-transform hover:scale-105"
                       >
-                        {/* Background Image with Blur Effect */}
+                 
                         <div 
                           className="absolute inset-0 bg-cover bg-center transition-all duration-300 group-hover:scale-110"
                           style={{
@@ -360,7 +358,7 @@ const Navbar: React.FC = () => {
         </>
       )}
 
-      {/* Right Side Profile and Actions */}
+
       {user ? (
         <div className="flex items-center gap-2">
           {/* Profile */}
@@ -376,7 +374,6 @@ const Navbar: React.FC = () => {
             />
           </div>
 
-          {/* Dropdown Arrow */}
           <button
             ref={arrowRef}
             onClick={handleArrowClick}
