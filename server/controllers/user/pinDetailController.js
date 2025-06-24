@@ -1,12 +1,11 @@
 import Pin from "../../models/pinSchema.js";
 import User from "../../models/userSchema.js";
-
-// Get a single pin by ID
+//singlepin
 export const getPinById = async (req, res) => {
   try {
     const pin = await Pin.findById(req.params.id)
       .populate("comments.commented", "username avatar")
-      .populate("userId" ,"username") // populate user info on comment
+      .populate("userId" ,"username") 
       .lean();
 
     if (!pin) {
@@ -20,7 +19,7 @@ export const getPinById = async (req, res) => {
   }
 };
 
-// Post a comment on a pin
+//comment pin
 export const commentOnPin = async (req, res) => {
   const { text, commented } = req.body;
   const { id: pinId } = req.params;
@@ -31,7 +30,6 @@ export const commentOnPin = async (req, res) => {
       return res.status(404).json({ message: "Pin not found" });
     }
 
-    // Optional: Validate user exists before adding comment
     const user = await User.findById(commented);
     if (!user) {
       return res.status(400).json({ message: "Invalid user ID" });

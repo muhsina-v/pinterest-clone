@@ -5,7 +5,7 @@ export const toggleFollow = async (req, res, next) => {
   try {
     const { followingId,followerId } = req.body;
     // const followerId = req.user.id;
-
+ 
     if (followerId === followingId) {
       return next(new CustomError("You cannot follow yourself", 400));
     }

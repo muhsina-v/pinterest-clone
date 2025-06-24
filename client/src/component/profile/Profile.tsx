@@ -82,7 +82,9 @@ const ProfilePage: React.FC<ProfilePageProps> = ({}) => {
 
         if (profileId && storedUser.id && profileId !== storedUser.id) {
           const isFollowingRes = await axiosInstance.get(
-            `/api/follow/is-following/${storedUser.id || storedUser._id}/${profileId}`
+            `/api/follow/is-following/${
+              storedUser.id || storedUser._id
+            }/${profileId}`
           );
           setIsFollowing(isFollowingRes.data.isFollowing);
 
@@ -97,41 +99,41 @@ const ProfilePage: React.FC<ProfilePageProps> = ({}) => {
     fetchProfileData();
   }, [profileId]);
   console.log("user", user);
-////////////////////
- useEffect(() => {
-  const fetchPins = async () => {
-    if (!profileId) {
-      setPinsError("No profile ID provided");
-      return;
-    }
+  ////////////////////
+  useEffect(() => {
+    const fetchPins = async () => {
+      const loggedInUserId = JSON.parse(localStorage.getItem("user") || "{}");
 
-    setPinsLoading(true);
-    setPinsError(null);
+      if (!loggedInUserId) {
+        setPinsError("No profile ID provided");
+        return;
+      }
 
-    try {
-      const savedRes = await axiosInstance.get(
-        `/api/user/saved-pins/${profileId}`
-      );
-      //console.log("Saved Pins Response:", savedRes.data);
-      setSavedPins(savedRes.data || []);
+      setPinsLoading(true);
+      setPinsError(null);
 
-      const uploadedRes = await axiosInstance.get(
-        `/api/user/pins/${profileId}`
-        
+      try {
+        const savedRes = await axiosInstance.get(
+          `/api/user/saved-pins/${loggedInUserId._id || loggedInUserId.id}`
+        );
+        //console.log("Saved Pins Response:", savedRes.data);
+        setSavedPins(savedRes.data || []);
 
-      );
-       console.log(" Uploaded Pins Response:", uploadedRes.data);
-      setUploadedPins(uploadedRes.data || []);
-    } catch (err) {
-      console.error("Failed to fetch pins:", err);
-      setPinsError("Failed to load pins. Please try again.");
-    } finally {
-      setPinsLoading(false);
-    }
-  };
+        const uploadedRes = await axiosInstance.get(
+          `/api/user/pins/${loggedInUserId._id || loggedInUserId.id}`
+        );
+        console.log(" Uploaded Pins Response:", uploadedRes.data);
+        setUploadedPins(uploadedRes.data || []);
+      } catch (err) {
+        console.error("Failed to fetch pins:", err);
+        setPinsError("Failed to load pins. Please try again.");
+      } finally {
+        setPinsLoading(false);
+      }
+    };
 
-  fetchPins();
-}, [profileId]); // this must depend on profileId
+    fetchPins();
+  }, [profileId]);
 
   console.log("user", user);
   console.log("Current state:", { savedPins, uploadedPins });
@@ -197,7 +199,7 @@ const ProfilePage: React.FC<ProfilePageProps> = ({}) => {
     );
     try {
       const response = await axiosInstance.put(
-       `/api/user/pins/${profileId}`,
+        `/api/user/pins/${profileId}`,
         editFormData,
         {
           headers: {

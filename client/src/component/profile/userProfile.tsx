@@ -54,7 +54,6 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  // Add separate function to check follow status using the same API pattern as ProfilePage
   const checkFollowStatus = async () => {
     if (!currentUser || !currentUser._id || !userId) return;
     
@@ -94,7 +93,6 @@ const UserProfile: React.FC = () => {
     }
   };
 
-  // Update handleFollow to use the same API pattern as ProfilePage
 const handleFollow = async () => {
     console.log(currentUser)
   if (!currentUser?._id || !userId) return;
@@ -110,7 +108,7 @@ const handleFollow = async () => {
     const action = response.data.message;
     setIsFollowing(action === "Followed successfully");
 
-    fetchUserProfile(); // update follower count and UI
+    fetchUserProfile();
   } catch (err) {
     console.error("Error toggling follow:", err);
     alert("Failed to follow/unfollow user");

@@ -1,5 +1,5 @@
 import React from "react";
-import {  Compass, Plus } from "lucide-react";
+import { Home, Compass, Plus } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar: React.FC = () => {
@@ -7,14 +7,14 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
 
   const navItems = [
-    // { icon: <Home size={24} />, path: "/", label: "Home" },
-    { icon: <Compass size={24} />, path: "/explore", label: "Explore" },
+    { icon: <Home size={24} />, path: "/explore", label: "Home" },
+    { icon: <Compass size={24} />, path: "/category-selection", label: "Explore" },
     { icon: <Plus size={24} />, path: "/create-pin", label: "Create" }
   ];
 
   return (
     <>
-      {/* lap Sidebar */}
+      {/* Desktop Sidebar */}
       <aside className="hidden md:flex fixed top-0 left-0 h-full w-20 bg-white shadow-sm border-r border-gray-200 pt-20 flex-col items-center gap-4 z-30">
         {navItems.map((item, index) => (
           <button
@@ -32,7 +32,7 @@ const Sidebar: React.FC = () => {
         ))}
       </aside>
 
-      {/* Mobile Bottombar*/}
+      {/* Mobile Bottombar */}
       <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-sm z-30">
         <div className="flex justify-around items-center py-2">
           {navItems.map((item, index) => (

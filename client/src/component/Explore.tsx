@@ -18,23 +18,34 @@ const ExplorePage: React.FC = () => {
   const [pins, setPins] = useState<Pin[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchPins = async () => {
-    setLoading(true);
-    try {
-      const userCategories = JSON.parse(localStorage.getItem("userCategories") || "[]");
-      console.log("Sending categories:", userCategories);
 
-      const response = await axiosInstance.post("/api/user/pin/category-based-pins", {
-        categories: userCategories,
-      });
-
-      setPins(response.data);
-    } catch (error) {
-      console.error("Failed to load pins:", error);
-    } finally {
-      setLoading(false);
+  const shuffleArray = <T,>(array: T[]): T[] => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
+    return shuffled;
   };
+
+  const fetchPins = async () => {
+  setLoading(true);
+  try {
+    const userCategories = JSON.parse(localStorage.getItem("userCategories") || "[]");
+
+    const response = await axiosInstance.post<Pin[]>("/api/user/pin/category-based-pins", {
+      categories: userCategories,
+    });
+
+    const shuffledPins = shuffleArray<Pin>(response.data);
+    setPins(shuffledPins);
+  } catch (error) {
+    console.error("Failed to load pins:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchPins();
@@ -43,8 +54,6 @@ const ExplorePage: React.FC = () => {
   return (
     <div className="pt-20 md:pl-20 pb-20 md:pb-4">
       <div className="p-4">
-     
-
         {loading ? (
           <div className="text-center text-gray-500">Loading pins...</div>
         ) : pins.length === 0 ? (

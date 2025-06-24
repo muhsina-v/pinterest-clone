@@ -6,8 +6,7 @@ import CustomError from "../utils/customError.js";
 import {
   registerValidationSchema,
   loginValidationSchema,
-} from "../models/userJoiSchema.js"
-
+} from "../models/userJoiSchema.js";
 
 dotenv.config();
 
@@ -16,6 +15,41 @@ const createToken = (id) => {
     expiresIn: "7d",
   });
 };
+
+// export const registerUser = async (req, res, next) => {
+//   try {
+//     const { value, error } = registerValidationSchema.validate(req.body);
+//     if (error) return next(new CustomError(error.details[0].message, 400));
+
+//     const { username, email, password, followers, following } = value;
+
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser) {
+//       return next(
+//         new CustomError("User already exists with this email", 409)
+//       );
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     const newUser = new User({
+//       username,
+//       email,
+//       password: hashedPassword,
+//       followers: followers || [],
+//       following: following || [],
+//     });
+
+//     await newUser.save();
+
+//     res.status(201).json({
+//       success: true,
+//       message: "User registered successfully",
+//     });
+//   } catch (err) {
+//     next(err);
+//   }
+// };
 
 export const registerUser = async (req, res, next) => {
   try {
@@ -26,9 +60,7 @@ export const registerUser = async (req, res, next) => {
 
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return next(
-        new CustomError("User already exists with this email", 409)
-      );
+      return next(new CustomError("User already exists with this email", 409));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -42,16 +74,27 @@ export const registerUser = async (req, res, next) => {
     });
 
     await newUser.save();
+    const token = createToken(newUser._id);
+
+    const currentUser = {
+      _id: newUser._id,
+      username: newUser.username,
+      email: newUser.email,
+      followers: newUser.followers,
+      following: newUser.following,
+      profileImage: newUser.profileImage,
+    };
 
     res.status(201).json({
       success: true,
       message: "User registered successfully",
+      token,
+      currentUser,
     });
   } catch (err) {
     next(err);
   }
 };
-
 export const loginUser = async (req, res, next) => {
   try {
     const { value, error } = loginValidationSchema.validate(req.body);
@@ -76,7 +119,7 @@ export const loginUser = async (req, res, next) => {
       email: user.email,
       followers: user.followers,
       following: user.following,
-      profileImage: user.profileImage
+      profileImage: user.profileImage,
     };
 
     res.status(200).json({
@@ -96,15 +139,13 @@ export const logoutUser = (req, res) => {
   });
 };
 
-
-
 export const updateUser = async (req, res, next) => {
   try {
-    const { id } = req.params
-    console.log("id",id)
-    console.log("req.body",req.body);
-    
-    const { username, email, password,bio } = req.body;
+    const { id } = req.params;
+    console.log("id", id);
+    console.log("req.body", req.body);
+
+    const { username, email, password, bio } = req.body;
 
     const profileImage = req.file ? req.file.path : undefined;
 
@@ -114,9 +155,7 @@ export const updateUser = async (req, res, next) => {
     if (email) updateData.email = email;
     if (bio) updateData.bio = bio;
 
-
     if (password) {
- 
       const hashedPassword = await bcrypt.hash(password, 10);
       updateData.password = hashedPassword;
     }
@@ -133,8 +172,9 @@ export const updateUser = async (req, res, next) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ message: "User updated successfully", user: updatedUser });
-
+    res
+      .status(200)
+      .json({ message: "User updated successfully", user: updatedUser });
   } catch (error) {
     console.error("Error updating user:", error);
     res.status(500).json({ message: "Internal Server Error" });

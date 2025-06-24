@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axiosInstance from '../utils/axios';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../utils/axios";
 
 interface FormData {
   username: string;
@@ -8,35 +8,57 @@ interface FormData {
   password: string;
 }
 
+interface RegisterResponse {
+  success: boolean;
+  message: string;
+  token: string;
+  currentUser: {
+    _id: string;
+    username: string;
+    email: string;
+    categories?: string[];
+  };
+}
+
 const RegisterPage: React.FC = () => {
   const [formData, setFormData] = useState<FormData>({
-    username: '',
-    email: '',
-    password: '',
+    username: "",
+    email: "",
+    password: "",
   });
-  const [error, setError] = useState<string>('');
+
+  const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>{
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) =>{
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
-      
 
     try {
-    
-      const response = await axiosInstance.post('/api/user/register', formData);
-      console.log(response)
-      alert(response.data.message);
      
-      navigate('/Explore');
+      const response = await axiosInstance.post<RegisterResponse>(
+        "/api/user/register",
+        formData
+      );
+      console.log(response.data);
+      const { token, currentUser } = response.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(currentUser));
+      localStorage.setItem("userCategories", JSON.stringify([]));
+
+      alert(response.data.message);
+
+      // only once after registration
+      navigate("/category-selection", { replace: true });
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
     }
@@ -53,8 +75,10 @@ const RegisterPage: React.FC = () => {
           />
           <span className="text-xl font-bold text-red-600">Pinterest</span>
         </div>
+
         <h2 className="text-2xl font-bold mb-4 text-black">Sign Up</h2>
         {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <input
             type="text"
@@ -83,18 +107,20 @@ const RegisterPage: React.FC = () => {
             className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
+
           <button
             type="submit"
             disabled={loading}
             className={`bg-red-500 text-white py-2 rounded-md hover:bg-red-600 transition ${
-              loading ? 'opacity-50 cursor-not-allowed' : ''
+              loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
-            {loading ? 'Signing Up...' : 'Sign Up'}
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
+
         <p className="mt-4 text-center text-sm text-gray-600">
-          Already have an account?{' '}
+          Already have an account?{" "}
           <Link to="/" className="text-blue-500 hover:underline">
             Log in
           </Link>

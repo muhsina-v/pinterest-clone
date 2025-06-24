@@ -2,7 +2,7 @@ import Pin from "../../models/pinSchema.js";
 
 
 export const getPinsByCategories = async (req, res) => {
-  const { categories } = req.body; // Expect array like ["food", "fashion"]
+  const { categories } = req.body; // array like food fashionnnnn
   console.log(req.body)
   try {
     const pins = await Pin.find({ category: { $in: categories } }).populate("userId");

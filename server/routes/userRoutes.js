@@ -17,6 +17,7 @@ import {
 import { verifyToken } from "../middlewares/varifyToken.js";
 import upload from "../middlewares/Upload.js";
 import {
+  checkPinSaved,
   getSavedPins,
   savePin,
 } from "../controllers/user/savePinController.js";
@@ -40,6 +41,7 @@ router.post("/pin/:id/comment", commentOnPin);
 // saveroutes
 router.post("/save-pin", verifyToken, savePin);
 router.get("/saved-pins/:id", getSavedPins);
+router.get('/isSaved/:pinId',verifyToken,checkPinSaved)
 
 router.get("/pins/:userId", getPinsByUser);
 //like
