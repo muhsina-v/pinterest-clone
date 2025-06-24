@@ -75,7 +75,6 @@ export const checkPinSaved = async (req, res) => {
     const userId = req.user;
     const { pinId } = req.params;
 
-    // Find the saved document for the user
     const savedDoc = await Saved.findOne({ userId });
 
     if (!savedDoc) {
@@ -83,7 +82,6 @@ export const checkPinSaved = async (req, res) => {
       return res.json({ isSaved: false });
     }
 
-    // Check if the pin exists in the pins array
     const isSaved = savedDoc.pins.includes(pinId);
 
     res.json({ isSaved });

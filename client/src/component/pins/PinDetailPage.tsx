@@ -50,8 +50,9 @@ const PinDetailPage: React.FC = () => {
       setPin(pinData);
       setLikesCount(pinData.likedBy?.length || 0);
       const user = JSON.parse(localStorage.getItem("user") || "{}");
+      console.log("user",user)
       setLiked(
-        (user.id && pinData.likedby?.includes(user._id || user.id)) || false
+        (user._id && pinData.likedby?.includes(user._id || user.id)) || false
       );
     } catch (err) {
       console.error("Failed to fetch pin:", err);
@@ -100,8 +101,10 @@ const PinDetailPage: React.FC = () => {
 
     try {
       const endpoint = wasLiked ? "/api/user/unlike" : "/api/user/like";
+      console.log("endpoint",endpoint)
       const res = await axiosInstance.post(
         endpoint,
+
         { postId: pin?._id },
         {
           headers: {
